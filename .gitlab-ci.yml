@@ -1,0 +1,31 @@
+stages:
+  - test-backend
+  - deploy
+
+test-backend:
+  stage: test
+  script:
+  - apk add --update python python-dev py-pip
+  - pip install --no-cache-dir pipenv
+  - cd backend
+  - pipenv install
+  - pipenv run python manage.py test
+
+#staging:
+#  stage: deploy
+#  script:
+#  - apk add --update ruby-dev
+#  - gem install dpl
+#  - dpl --provider=heroku --app=gitlab-ci-python-test-staging --api-key=9b611be7-370f-4e93-925c-16b4ccf3b579
+#  only:
+#  - master
+
+#
+#production:
+#  stage: deploy
+#  script:
+#  - apt-get update -qy
+#  - apt-get install -y ruby-dev
+#  - gem install dpl
+#  - dpl --provider=heroku --app=gitlab-ci-python-test-prod --api-key=$HEROKU_PRODUCTION_API_KEY
+#  only:
