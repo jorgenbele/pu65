@@ -1,15 +1,25 @@
 stages:
-  - test-backend
+  - test
   - deploy
 
 test-backend:
+  image: python:3.8-alpine
   stage: test
   script:
-  - apk add --update python python-dev py-pip
-  - pip install --no-cache-dir pipenv
+  - pip install --no-cache-dir pipenv yapf
   - cd backend
-  - pipenv install
+  - pipenv install --python 3.8
   - pipenv run python manage.py test
+  - yapf --diff -r . || echo 'Not formatted correctly'
+
+test-frontend:
+  stage: test
+  image: node
+  script:
+    - cd frontend
+    - yarn install
+    - CI=true yarn test
+    - node_modules/.bin/standard
 
 #staging:
 #  stage: deploy
