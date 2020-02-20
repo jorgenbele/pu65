@@ -25,7 +25,7 @@ SECRET_KEY = 'r#9dqdle^$c75b*^146t3)n+&*un40w9x29lv4$!0g!bsk0xyz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['pu65-api.herokuapp.com', 'localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['pu65-api.herokuapp.com', 'pu65-api-staging.herokuapp.com', 'localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
