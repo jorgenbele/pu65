@@ -10,7 +10,7 @@ test-backend:
   - cd backend
   - pipenv install --python 3.8
   - pipenv run python manage.py test
-    #  - yapf --diff -r . || echo 'Not formatted correctly'
+  - yapf --diff -r . || echo 'Not formatted correctly'
 
 test-frontend:
   stage: test
@@ -19,7 +19,7 @@ test-frontend:
     - cd frontend
     - yarn install
     - CI=true yarn test
-      #    - node_modules/.bin/standard
+    - node_modules/.bin/standard
 
 staging:
   stage: deploy
