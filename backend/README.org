@@ -1,0 +1,67 @@
+#+TITLE:   ShopStop Django Backend
+#+DATE:    February 20, 2020
+#+SINCE:
+#+STARTUP: inlineimages
+
+* Table of Contents :TOC_3:noexport:
+- [[#requirements][Requirements]]
+- [[#development-setup][Development setup]]
+  - [[#setup-python-virtual-environment-using-pipenv][Setup Python virtual environment using pipenv]]
+  - [[#entering-the-virtual-environment-using-pipenv][Entering the virtual environment using pipenv]]
+  - [[#using-django][Using django]]
+    - [[#starting-the-development-server][Starting the development server]]
+- [[#troubleshooting][Troubleshooting]]
+  - [[#did-you-make-changes-to-the-database-models-and-you-now-get-inconsistencies-or-errors][Did you make changes to the database models and you now get inconsistencies or errors?]]
+
+* Requirements
+- Python 3.8
+- Pip
+- Pipenv (installed by running: pip install pipenv)
+
+* Development setup
+** Setup Python virtual environment using pipenv
+#+BEGIN_SRC sh
+# make sure you are in backend/ when running these commands
+pipenv install # this will install all the python packages needed for this project
+#+END_SRC
+
+#+RESULTS:
+| Installing dependencies from Pipfile.lock (453528)… |                                                      |
+| To activate this project's virtualenv               | run pipenv shell.                                    |
+| Alternatively                                       | run a command inside the virtualenv with pipenv run. |
+
+
+
+** Entering the virtual environment using pipenv
+#+BEGIN_SRC sh
+# make sure you are in backend/ when running these commands
+pipenv shell
+#+END_SRC
+
+All further instructions assume that you are are in a pipenv shell
+
+** Using django
+*** Starting the development server
+The server will automatically reload when any changes are detected. If database
+models are changed however (~models.py~), see Troubleshooting below.
+
+#+BEGIN_SRC sh
+python manage.py runserver
+#+END_SRC
+
+
+
+* Troubleshooting
+** Did you make changes to the database models and you now get inconsistencies or errors?
+Run the following commands to update the database to match the models.
+Remember to commit the files created when this command is run, when changes to
+the django models has been made.
+
+First, stop the server if it is running, then execute the following commands,
+and restart the server again.
+
+#+BEGIN_SRC sh
+# in backend/ and in pipenv shell environment
+python manage.py makemigrations
+python manage.py migrate
+#+END_SRC
