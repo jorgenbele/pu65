@@ -1,49 +1,44 @@
-//import { lensPath, lensProp, view, set, over } from 'rambda';
+// import { lensPath, lensProp, view, set, over } from 'rambda';
 
-import { SHOPPING_LIST } from "../actionTypes";
+import { SHOPPING_LIST } from '../actionTypes'
 
-//const listsLens = lensProp('lists');
-//const listLens = lensPath(['lists']);
+import { immutableReplaceAtIndex } from '../../utils'
 
 const initialState = {
   lists: [
-    { name: "Kollektivfest", workspace: "Kollektivet", index: 0, },
-    { name: "Hjemmefest", workspace: null, index: 1,  },
-    { name: "Jobbfest", workspace: "Jobb", index: 2, }
+    { name: 'Kollektivfest', workspace: 'Kollektivet', index: 0 },
+    { name: 'Hjemmefest', workspace: null, index: 1 },
+    { name: 'Jobbfest', workspace: 'Jobb', index: 2 }
   ]
-};
+}
 
-//const append = item => array => [...(array || []), item];
-//const findById = id => array => array.find(item => item.id === id);
-
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
-
     case SHOPPING_LIST.CREATE: {
-      console.log(action.payload);
-      const { list } = action.payload;
+      console.log(action.payload)
+      const { list } = action.payload
 
       return {
         ...state,
         lists: [
           ...state.lists,
-          list,       
+          list
         ]
-      };
+      }
     }
 
     case SHOPPING_LIST.ADD_ITEM: {
-      const { list, item } = action.payload;
+      const { list, item } = action.payload
 
       const newList = immutableReplaceAtIndex(state.lists[list], item.index, item)
-      const newLists = immutableReplaceAtIndex(state.lists, list.index, list)
+      const newLists = immutableReplaceAtIndex(state.lists, list.index, newList)
 
       return {
         ...state,
-        lists: newLists,
-      };
+        lists: newLists
+      }
     }
     default:
-      return state;
+      return state
   }
 }

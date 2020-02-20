@@ -1,15 +1,14 @@
-import * as React from "react";
-import { Image } from "react-native";
-import { Banner } from "react-native-paper";
+import * as React from 'react'
+import { Banner } from 'react-native-paper'
 
 // FROM: https://callstack.github.io/react-native-paper/banner.html
 export default class PopupInfoBanner extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { visible: this.props.visible };
+  constructor (props) {
+    super(props)
+    this.state = { visible: this.props.visible }
   }
 
-  render() {
+  render () {
     return (
       <Banner
         visible={this.state.visible}
@@ -17,17 +16,17 @@ export default class PopupInfoBanner extends React.Component {
           {
             label: this.props.confirmLabel,
             onPress: () => {
-              this.setState({ visible: false });
+              this.setState({ visible: false })
               this.props.confimativeAction &&
-                this.props.confimativeAction(this);
+                this.props.confimativeAction(this)
             }
           },
           {
             label: this.props.ignoreLabel,
             onPress: () => {
-              this.setState({ visible: false });
+              this.setState({ visible: false })
               this.props.confimativeAction &&
-                this.props.confimativeAction(this);
+                this.props.confimativeAction(this)
             }
           }
         ]}
@@ -35,14 +34,14 @@ export default class PopupInfoBanner extends React.Component {
       >
         {this.props.message}
       </Banner>
-    );
+    )
   }
 }
 
 PopupInfoBanner.defaultProps = {
   visible: true,
-  message: "default message",
-  confirmLabel: "confirm",
-  ignoreLabel: "ignore",
-  icon: null,
-};
+  message: 'default message',
+  confirmLabel: 'confirm',
+  ignoreLabel: 'ignore',
+  icon: null
+}

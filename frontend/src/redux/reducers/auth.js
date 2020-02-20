@@ -1,35 +1,37 @@
 
-import { AUTH } from "../actionTypes";
+import { AUTH } from '../actionTypes'
 
 const initialState = {
   username: null,
-  token: null,
-};
+  token: null
+}
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case AUTH.LOG_IN: {
-      console.log(action.payload);
-      const { username, password } = action.payload;
+      console.log(action.payload)
+      const { username, password } = action.payload
+
+      console.log(username + ' ' + password)
+
+      // sample response
+      const response = { token: 'test' }
 
       return {
         username: username,
-        token: response.token,
-      };
+        token: response.token
+      }
     }
 
-    case SHOPPING_LIST.ADD_ITEM: {
-      const { list, item } = action.payload;
+    case AUTH.LOG_OUT:
+      // TODO
+      return state
 
-      const newList = immutableReplaceAtIndex(state.lists[list], item.index, item)
-      const newLists = immutableReplaceAtIndex(state.lists, list.index, list)
+    case AUTH.CREATE_USER:
+      // TODO
+      return state
 
-      return {
-        ...state,
-        lists: newLists,
-      };
-    }
     default:
-      return state;
+      return state
   }
 }

@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
+import * as React from 'react'
+import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper'
 
 const ShoppingList = () => (
   <Card>
-    <Card.Title title="Card Title" subtitle="Card Subtitle" left={(props) => <Avatar.Icon {...props} icon="folder" />} />
+    <Card.Title title='Card Title' subtitle='Card Subtitle' left={(props) => <Avatar.Icon {...props} icon='folder' />} />
     <Card.Content>
       <Title>Card title</Title>
       <Paragraph>Card content</Paragraph>
@@ -14,6 +14,6 @@ const ShoppingList = () => (
       <Button>Ok</Button>
     </Card.Actions>
   </Card>
-);
+)
 
-export default ShoppingList;
+export default ShoppingList

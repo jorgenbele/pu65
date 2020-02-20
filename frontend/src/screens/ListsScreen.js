@@ -1,72 +1,72 @@
-import React from "react";
-import { ScrollView } from "react-native";
-import { StyleSheet, Text, View } from "react-native";
-import PopupInfoBanner from "../components/PopupInfoBanner";
-import { Avatar, List, FAB } from "react-native-paper";
-import { immutableReplaceAtIndex, makeListItem } from "../utils";
-import { connect } from "react-redux";
+import React from 'react'
+import { ScrollView, StyleSheet } from 'react-native'
 
-import { createList } from "../redux/actions";
+import PopupInfoBanner from '../components/PopupInfoBanner'
+import { List, FAB as FAButton } from 'react-native-paper'
+import { makeListItem } from '../utils'
+import { connect } from 'react-redux'
 
-import store from "../redux/store";
+import { createList } from '../redux/actions'
+
+import store from '../redux/store'
 
 const mapStateToProps = state => {
-  return { lists: state.shoppingList.lists };
-};
+  return { lists: state.shoppingList.lists }
+}
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     createList: l => dispatch(createList(l))
-  };
+  }
 }
 
 class ConnectedListsScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { lists: this.props.lists };
+  constructor (props) {
+    super(props)
+    this.state = { lists: this.props.lists }
   }
 
-  render() {
+  render () {
     const styles = StyleSheet.create({
       fab: {
-        position: "absolute",
+        position: 'absolute',
         margin: 16,
         right: 0,
         bottom: 0
       }
-    });
+    })
 
-    const isPersonalList = list => list.workspace === null;
-    console.log("this.props.list:");
-    console.log(this.props.lists);
-    const personalLists = this.props.lists.filter(isPersonalList);
-    const sharedLists = this.props.lists.filter(l => !isPersonalList(l));
+    const isPersonalList = list => list.workspace === null
+    console.log('this.props.list:')
+    console.log(this.props.lists)
+    const personalLists = this.props.lists.filter(isPersonalList)
+    const sharedLists = this.props.lists.filter(l => !isPersonalList(l))
 
     return (
       <>
         {this.state.lists.length <= 0 ? (
           // Display a banner when no lists exists
           <PopupInfoBanner
-            visible={true}
+            visible
             message={
-              "You currently have " +
+              'You currently have ' +
               this.props.lists.length.toString() +
-              " lists"
+            ' lists'
             }
-            confirmLabel={"Create a list"}
+            confirmLabel='Create a list'
             confirmAction={() => {
               this.setState({
                 lists: [
                   {
-                    name: "Kollektiv2",
-                    workspace: "Kollektivet"
+                    name: 'Kollektiv2',
+                    workspace: 'Kollektivet'
                   },
                   ...this.state.lists
                 ]
-              });
+              })
             }}
-            ignoreLabel={"Not now"}
-            icon="exclamation"
+            ignoreLabel='Not now'
+            icon='exclamation'
           />
         ) : (
           <ScrollView>
@@ -75,63 +75,63 @@ class ConnectedListsScreen extends React.Component {
                 <>
                   <List.Subheader>Personal lists</List.Subheader>
                   {personalLists.map((list, index) => {
-                    return makeListItem(list.name, list.name);
-                    //<List.Item
+                    return makeListItem(list.name, list.name)
+                    // <List.Item
                     //  key={list + index.toString()}
                     //  title={list.name}
                     //  left={() => <List.Icon icon={this.props.listIcon} />}
-                    ///>
+                    /// >
                   })}
                 </>
               )}
 
               <List.Subheader>Shared lists</List.Subheader>
               {sharedLists.map((list, index) => {
-                return makeListItem(list.name, list.workspace);
-                //<List.Item
+                return makeListItem(list.name, list.workspace)
+                // <List.Item
                 //  key={list + index.toString()}
                 //  title={list.name}
                 //  left={() => <List.Icon icon={this.props.listIcon} />}
-                ///>
+                /// >
               })}
             </List.Section>
           </ScrollView>
         )}
 
-        <FAB
+        <FAButton
           style={styles.fab}
           medium
-          icon="plus"
+          icon='plus'
           onPress={() => {
-            console.log(store.getState());
+            console.log(store.getState())
             this.props.createList({
               name:
-                "List " +
+                'List ' +
                 this.props.lists
                   .reduce((l, r) => (l.index > r.index ? l.index : r.index), 0)
                   .toString(),
-              workspace: "Kollektivet",
+              workspace: 'Kollektivet',
               index:
                 1 +
                 this.props.lists.reduce(
                   (l, r) => (l.index > r.index ? l.index : r.index),
                   0
                 )
-            });
-            console.log("Pressed");
+            })
+            console.log('Pressed')
           }} // FIXME: Add authentication/creation of workspace
         />
       </>
-    );
+    )
   }
 }
 ConnectedListsScreen.defaultProps = {
-  listIcon: "folder",
+  listIcon: 'folder',
   lists: []
-};
+}
 
 const ListsScreen = connect(
   mapStateToProps,
   mapDispatchToProps
-)(ConnectedListsScreen);
-export default ListsScreen;
+)(ConnectedListsScreen)
+export default ListsScreen

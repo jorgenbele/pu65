@@ -1,12 +1,12 @@
 // FIXME: LICENSE???
 // From expo
 
-import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import React from 'react'
+import { Ionicons } from '@expo/vector-icons'
 
-import Colors from '../constants/Colors';
+import Colors from '../constants/Colors'
 
-export default function Iconicon(props) {
+export default function Iconicon (props) {
   return (
     <Ionicons
       name={props.name}
@@ -14,5 +14,5 @@ export default function Iconicon(props) {
       style={{ marginBottom: -3 }}
       color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
     />
-  );
+  )
 }
