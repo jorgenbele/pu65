@@ -32,6 +32,9 @@ staging:
   - git checkout -f split 
   - echo $SECRET_HEROKU_API_KEY
   - dpl --provider=heroku --app=pu65-api-staging --api-key=$SECRET_HEROKU_API_KEY
+  environment:
+      name: staging
+      url: https://pu65-api-staging.herokuapp.com
   only:
     - develop
 
@@ -45,6 +48,9 @@ production:
   - git subtree split --prefix backend > .git/refs/heads/split
   - git checkout -f split 
   - dpl --provider=heroku --app=pu65-api --api-key=$SECRET_HEROKU_API_KEY
+  environment:
+      name: staging
+      url: https://pu65-api.herokuapp.com
   only:
     - master
 
