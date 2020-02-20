@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='member',
-            options={'verbose_name': 'user', 'verbose_name_plural': 'users'},
+            options={
+                'verbose_name': 'user',
+                'verbose_name_plural': 'users'
+            },
         ),
         migrations.AlterModelManagers(
             name='member',
@@ -32,24 +35,36 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='collectionitem',
             name='added_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='added', to='app.Workspace'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='added',
+                to='app.Workspace'),
         ),
         migrations.AlterField(
             model_name='collectionitem',
             name='bought_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='bought', to='app.Workspace'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='bought',
+                to='app.Workspace'),
         ),
         migrations.AlterField(
             model_name='member',
             name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                parent_link=True,
+                primary_key=True,
+                serialize=False,
+                to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name='workspace',
             name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='workspace_owner', to='app.Member'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='workspace_owner',
+                to='app.Member'),
         ),
-        migrations.DeleteModel(
-            name='WorkspaceMember',
-        ),
+        migrations.DeleteModel(name='WorkspaceMember', ),
     ]

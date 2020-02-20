@@ -14,6 +14,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='collectionitem',
             name='collection',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='app.Collection'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='items',
+                to='app.Collection'),
         ),
     ]

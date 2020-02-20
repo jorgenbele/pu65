@@ -14,21 +14,32 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='collection',
             name='workspace',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='collections', to='app.Workspace'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='collections',
+                to='app.Workspace'),
         ),
         migrations.AlterField(
             model_name='collectionitem',
             name='added_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='added', to='app.Member'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='added',
+                to='app.Member'),
         ),
         migrations.AlterField(
             model_name='collectionitem',
             name='bought_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='bought', to='app.Member'),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='bought',
+                to='app.Member'),
         ),
         migrations.AlterField(
             model_name='workspace',
             name='members',
-            field=models.ManyToManyField(related_name='part_of_workspaces', to='app.Member'),
+            field=models.ManyToManyField(related_name='part_of_workspaces',
+                                         to='app.Member'),
         ),
     ]
