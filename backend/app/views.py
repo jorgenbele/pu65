@@ -23,6 +23,9 @@ class WorkspacesViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly
     ]
 
+    def perform_create(self, serializer):
+        serializer.save(owner=Member.objects.get(id=self.request.user.id))
+
 
 class CollectionsViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
