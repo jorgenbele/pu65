@@ -6,6 +6,7 @@ test-backend:
   image: python:3.8-alpine
   stage: test
   script:
+  - apk --no-cache add build-base postgresql-dev
   - pip install --no-cache-dir pipenv yapf
   - cd backend
   - pipenv install --python 3.8
@@ -30,7 +31,6 @@ staging:
   - rm -r frontend
   - git subtree split --prefix backend > .git/refs/heads/split
   - git checkout -f split 
-  - echo $SECRET_HEROKU_API_KEY
   - dpl --provider=heroku --app=pu65-api-staging --api-key=$SECRET_HEROKU_API_KEY
   environment:
       name: staging
@@ -53,4 +53,3 @@ production:
       url: https://pu65-api.herokuapp.com
   only:
     - master
-

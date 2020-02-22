@@ -125,4 +125,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = 'static/'
 
+if os.environ.get('DATABASE_URL'):
+    print('Using database url from environment')
+    import dj_database_url
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
+
 from .local_settings import *
