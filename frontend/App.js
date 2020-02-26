@@ -8,6 +8,7 @@ import store from './src/redux/store'
 
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
 import { createAppContainer } from 'react-navigation'
+import { NavigationContainer } from '@react-navigation/native'
 
 import ListsScreen from './src/screens/ListsScreen'
 import SettingsScreen from './src/screens/SettingsScreen'
@@ -23,7 +24,11 @@ export default function App () {
           // FIXME: Not currently working on my phone correctly without hidden=true
         }
         <StatusBar hidden />
-        <BottomTabContainer />
+
+        {/* The BottomTabContainer needs to be wrapped in a NavigationContainer to allow nested navigators */}
+        <NavigationContainer>
+          <BottomTabContainer />
+        </NavigationContainer>
       </PaperProvider>
     </StoreProvider>
   )

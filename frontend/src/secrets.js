@@ -1,0 +1,4 @@
+export default {
+  USER_NAME: 'SET_USERNAME_HERE',
+  USER_PASSWORD: 'SET_PASSWORD_HERE'
+}
