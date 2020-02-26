@@ -1,9 +1,18 @@
+/* global fetch:false Headers:false */
+
 import React from 'react'
 
 import Iconicon from './components/Iconicon'
 
 import { ListItem, Badge } from 'react-native-elements'
 import TouchableScale from 'react-native-touchable-scale'
+
+// ...
+import { BASE_URL, LOGIN_PATH  } from './constants/Urls'
+
+import {
+  authLoginSuccess, authLoginPending, authLoginError,
+} from './redux/actions'
 
 export const makeIcon = (name, focused) => {
   return (
@@ -111,4 +120,31 @@ export const immutableReplaceAtIndex = (array, index, element) => {
   const newArray = array.slice()
   newArray[index] = element
   return newArray
+}
+
+export function authLogin (username, password) {
+  console.log('AUTH LOGIN')
+
+  return (dispatch, getState) => {
+    console.log('AUTH LOGIN DISPATCH')
+    const url = BASE_URL + LOGIN_PATH
+    const body = JSON.stringify({
+      username,
+      password
+    })
+
+    dispatch(authLoginPending())
+    fetch(url, {
+      method: 'POST',
+      headers: new Headers({ 'Content-type': 'application/json' }),
+      body
+    }).then(data => data.json())
+      .then(jsonData => {
+        dispatch(authLoginSuccess(username, jsonData.token))
+      })
+      .catch(error => {
+        dispatch(authLoginError(error))
+        console.error(error)
+      })
+  }
 }

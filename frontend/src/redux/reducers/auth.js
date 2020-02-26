@@ -1,4 +1,3 @@
-
 import { AUTH } from '../actionTypes'
 
 const initialState = {
@@ -8,19 +7,20 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case AUTH.LOG_IN: {
-      console.log(action.payload)
-      const { username, password } = action.payload
+    case AUTH.LOG_IN_PENDING: {
+      return { ...state, pending: true }
+    }
 
-      console.log(username + ' ' + password)
+    case AUTH.LOG_IN_SUCCESS: {
+      const { username, token } = action.payload
+      console.log(username + ' ' + token)
 
-      // sample response
-      const response = { token: 'test' }
+      return { ...state, pending: false, username, token }
+    }
 
-      return {
-        username: username,
-        token: response.token
-      }
+    case AUTH.LOG_IN_ERROR: {
+      const { error } = action
+      return { ...state, pending: false, error }
     }
 
     case AUTH.LOG_OUT:

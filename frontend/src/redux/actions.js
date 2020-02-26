@@ -30,9 +30,18 @@ export function createWorkspace (name) {
 }
 
 // Auth
-export function authLogin (username, password) {
-  return { type: AUTH.LOG_IN, payload: { username, password } }
+export function authLoginPending () {
+  return { type: AUTH.LOG_IN_PENDING }
 }
+
+export function authLoginSuccess (username, token) {
+  return { type: AUTH.LOG_IN_SUCCESS, payload: { username, token } }
+}
+
+export function authLoginError (error) {
+  return { type: AUTH.LOG_IN_ERROR, error }
+}
+
 export function authLogout (token) {
   return { type: AUTH.LOG_OUT, payload: { token } }
 }
