@@ -3,18 +3,28 @@ import { StyleSheet } from 'react-native'
 
 import PopupInfoBanner from '../components/PopupInfoBanner'
 
-import { List, FAB as FAButton } from 'react-native-paper'
+import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
 
-import {
-  makeWorkspaceListItem
-} from '../utils'
 import { connect } from 'react-redux'
 
 import store from '../redux/store'
 import { ScrollView } from 'react-native-gesture-handler'
 
-const mapStateToProps = state => {
-  return { workspaces: state.workspaces }
+import { fetchWorkspacesPending, fetchWorkspacesSuccess, fetchWorkspacesError } from '../redux/actions'
+
+import {
+  fetchWorkspaces,
+  makeWorkspaceListItem
+} from '../utils'
+
+const mapStateToProps = state => ({
+  error: fetchWorkspacesError(state),
+  workspaces: fetchWorkspacesSuccess(state),
+  pending: fetchWorkspacesPending(state)
+})
+
+const mapDispatchToProps = {
+  fetchWorkspaces
 }
 
 // function mapDispatchToProps(dispatch) {
@@ -26,10 +36,31 @@ const mapStateToProps = state => {
 class WorkspacesScreen extends React.Component {
   constructor (props) {
     super(props)
-    this.state = { workspaces: this.props.workspaces }
+    this.shouldComponentRender = this.shouldComponentRender.bind(this)
+  }
+
+  componentDidMount () {
+    const { fetchWorkspaces } = this.props
+    fetchWorkspaces()
+  }
+
+  shouldComponentRender () {
+    // TODO: more checks
+    const { pending } = this.props
+    if (!pending) return false
+    return true
   }
 
   render () {
+    const { workspaces, error, pending } = this.props
+    console.log(pending)
+    console.log(error)
+    console.log(workspaces)
+
+    if (pending) {
+      return <ActivityIndicator animating color='#FF0000' />
+    }
+
     const styles = StyleSheet.create({
       fab: {
         position: 'absolute',
@@ -39,23 +70,25 @@ class WorkspacesScreen extends React.Component {
       }
     })
 
+    console.log(this.props)
     const isWorkspaceOwner = workspace => workspace.isOwner
 
-    const managingWorkspaces = this.state.workspaces.filter(isWorkspaceOwner)
-    const joinedWorkspaces = this.state.workspaces.filter(
+    console.log(this.props.workspaces)
+    const managingWorkspaces = this.props.workspaces.filter(isWorkspaceOwner)
+    const joinedWorkspaces = this.props.workspaces.filter(
       w => !isWorkspaceOwner(w)
     )
 
     // const iconicon = makeIcon(true, 'list');
     return (
       <>
-        {this.state.workspaces.length <= 0 ? (
+        {this.props.workspaces.length <= 0 ? (
           // Display a banner when no workspaces are added
           <PopupInfoBanner
             visible
             message='You are currently without a workspace'
             confirmLabel='Add a workspace'
-            confirmAction={() => {
+            confirmAction={(ConnectedWorkspacesScreen) => {
               this.state.workspaces.add(['test'])
             }}
             ignoreLabel='Not now'
@@ -81,11 +114,11 @@ class WorkspacesScreen extends React.Component {
               <List.Subheader>Workspaces you are part of</List.Subheader>
               {joinedWorkspaces.map((workspace, index) => {
                 return (
-                  // <List.Item
-                  //  key={workspace + index.toString()}
-                  //  title={workspace.name}
-                  //  left={() => <List.Icon icon={this.props.workspaceIcon} />}
-                  /// >
+                // <List.Item
+                //  key={workspace + index.toString()}
+                //  title={workspace.name}
+                //  left={() => <List.Icon icon={this.props.workspaceIcon} />}
+                /// >
                   makeWorkspaceListItem(workspace)
                 )
               })}
@@ -112,9 +145,11 @@ class WorkspacesScreen extends React.Component {
 WorkspacesScreen.defaultProps = {
   workspaceIcon: 'folder',
   // FIXME: members should include current user
+  error: null,
+  pending: true,
   workspaces: []
 }
 
-// const ConnectedWorkspacesScreen = connect(mapStateToProps, mapDispatchToProps)(WorkspacesScreen);
-const ConnectedWorkspacesScreen = connect(mapStateToProps)(WorkspacesScreen)
+const ConnectedWorkspacesScreen = connect(mapStateToProps, mapDispatchToProps)(WorkspacesScreen)
+// const ConnectedWorkspacesScreen = connect(mapStateToProps)(WorkspacesScreen)
 export default ConnectedWorkspacesScreen

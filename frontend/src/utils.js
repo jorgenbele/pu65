@@ -8,10 +8,11 @@ import { ListItem, Badge } from 'react-native-elements'
 import TouchableScale from 'react-native-touchable-scale'
 
 // ...
-import { BASE_URL, LOGIN_PATH  } from './constants/Urls'
+import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH } from './constants/Urls'
 
 import {
   authLoginSuccess, authLoginPending, authLoginError,
+  fetchWorkspacesSuccess, fetchWorkspacesPending, fetchWorkspacesError
 } from './redux/actions'
 
 export const makeIcon = (name, focused) => {
@@ -86,12 +87,12 @@ export const makeWorkspaceListItem = workspace => {
   return (
     // FROM: https://react-native-elements.github.io/react-native-elements/docs/listitem.html
     <ListItem
-      key={workspace.index} // FIXME: make unique
+      key={workspace.id} // FIXME: make unique
       Component={TouchableScale}
       friction={90} //
       tension={100} // These props are passed to the parent component (here TouchableScale)
       activeScale={0.95} //
-      linearGradientProps={gradients[workspace.index % gradients.length]}
+      linearGradientProps={gradients[workspace.id % gradients.length]}
       // ViewComponent={LinearGradient} // Only if no expo
 
       // Uncomment leftElement line to display number of members in icon
@@ -101,13 +102,13 @@ export const makeWorkspaceListItem = workspace => {
       titleStyle={{ color: 'white', fontWeight: 'bold' }}
       subtitleStyle={{ color: 'white' }}
       subtitle={workspace.name}
-      rightElement={<Badge value={workspace.lists.length} />}
+      rightElement={<Badge value={workspace.collections.length} />}
       chevron={{ color: 'white' }}
     />
   )
 }
 
-export const showMessage = msg => {}
+export const showMessage = msg => { }
 
 export const objectMap = (obj, fn) =>
   Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]))
@@ -145,6 +146,38 @@ export function authLogin (username, password) {
       .catch(error => {
         dispatch(authLoginError(error))
         console.error(error)
+      })
+  }
+}
+
+export const authorizationToken = (state) => {
+  return { Authorization: 'Token ' + state.auth.token }
+}
+
+export const fetchWorkspaces = () => {
+  return (dispatch, getState) => {
+    dispatch(fetchWorkspacesPending())
+
+    const url = BASE_URL + WORKSPACES_PATH
+
+    fetch(url, {
+      method: 'GET',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      })
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log(jsonData)
+
+        const data = jsonData.map(workspace => {
+          return { ...workspace, isOwner: (workspace.members[workspace.owner] === getState().auth.username) }
+        })
+        dispatch(fetchWorkspacesSuccess(data))
+      })
+      .catch(error => {
+        console.log(error)
+        dispatch(fetchWorkspacesError(error))
       })
   }
 }

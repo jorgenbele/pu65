@@ -29,6 +29,20 @@ export function createWorkspace (name) {
   return { type: WORKSPACE.CREATE, payload: { name } }
 }
 
+export function fetchWorkspacesPending () {
+  return { type: WORKSPACE.FETCH_PENDING }
+}
+
+export function fetchWorkspacesSuccess (workspaces) {
+  console.log('fetch:')
+  console.log(workspaces)
+  return { type: WORKSPACE.FETCH_SUCCESS, workspaces }
+}
+
+export function fetchWorkspacesError (error) {
+  return { type: WORKSPACE.FETCH_ERROR, error }
+}
+
 // Auth
 export function authLoginPending () {
   return { type: AUTH.LOG_IN_PENDING }
