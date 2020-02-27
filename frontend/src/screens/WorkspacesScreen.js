@@ -10,28 +10,10 @@ import { connect } from 'react-redux'
 import store from '../redux/store'
 import { ScrollView } from 'react-native-gesture-handler'
 
-import { fetchWorkspacesPending, fetchWorkspacesSuccess, fetchWorkspacesError } from '../redux/actions'
-
 import {
   fetchWorkspaces,
   makeWorkspaceListItem
 } from '../utils'
-
-const mapStateToProps = state => ({
-  error: fetchWorkspacesError(state),
-  workspaces: fetchWorkspacesSuccess(state),
-  pending: fetchWorkspacesPending(state)
-})
-
-const mapDispatchToProps = {
-  fetchWorkspaces
-}
-
-// function mapDispatchToProps(dispatch) {
-//  return {
-//    createWorkspace: name => dispatch(createWorkspace(name))
-//  };
-// }
 
 class WorkspacesScreen extends React.Component {
   constructor (props) {
@@ -146,10 +128,19 @@ WorkspacesScreen.defaultProps = {
   workspaceIcon: 'folder',
   // FIXME: members should include current user
   error: null,
-  pending: true,
+  pending: false,
   workspaces: []
 }
 
+const mapStateToProps = state => ({
+  workspaces: state.workspaces.workspaces,
+  error: state.workspaces.error,
+  pending: state.workspaces.pending
+})
+
+const mapDispatchToProps = {
+  fetchWorkspaces
+}
+
 const ConnectedWorkspacesScreen = connect(mapStateToProps, mapDispatchToProps)(WorkspacesScreen)
-// const ConnectedWorkspacesScreen = connect(mapStateToProps)(WorkspacesScreen)
 export default ConnectedWorkspacesScreen

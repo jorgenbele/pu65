@@ -160,7 +160,7 @@ export const fetchWorkspaces = () => {
 
     const url = BASE_URL + WORKSPACES_PATH
 
-    fetch(url, {
+    return fetch(url, {
       method: 'GET',
       headers: new Headers({
         'Content-type': 'application/json',
