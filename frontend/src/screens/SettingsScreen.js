@@ -43,12 +43,20 @@ function SettingsMainScreen ({ navigation }) {
 function WorkspaceScreen ({ navigation }) {
   return (
     <View style={styles.container}>
+      <Button icon='login' mode='contained' onPress={() => login()}>
+      Login
+      </Button>
+
       <Button icon='login' mode='contained' onPress={() => store.dispatch(fetchWorkspaces())}>
-        fetch workspaces
+      fetch workspaces
       </Button>
 
       <Button icon='login' mode='contained' onPress={() => store.dispatch(createWorkspace('test name'))}>
-        add new workspaces
+      add new workspaces
+      </Button>
+
+      <Button icon='login' mode='contained' onPress={() => console.log(store.getState())}>
+        print state
       </Button>
     </View>
   )
