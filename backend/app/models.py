@@ -23,16 +23,6 @@ class Workspace(models.Model):
         return self.name
 
 
-#class WorkspaceMember(models.Model):
-#    member = models.ForeignKey(Member, on_delete=models.CASCADE)
-#    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-#    # Deletion of users is not allowed, therefore the 'is_deleted' field
-#    # is used to represent whether or not an user is still active.
-#    is_deleted = models.BooleanField('is this member a deleted user',
-#                                     default=False)
-#
-
-
 class Collection(models.Model):
     """
     A Collection is the 
@@ -60,13 +50,13 @@ class CollectionItem(models.Model):
     collection = models.ForeignKey(Collection,
                                    related_name='items',
                                    on_delete=models.CASCADE)
-    name = models.TextField(
-        verbose_name='the text to show in the list',
-        unique=True,  # we don't want repeated items
-        max_length=128)
+    name = models.TextField(verbose_name='the text to show in the list',
+                            max_length=128)
+
     added_by = models.ForeignKey(Member,
                                  on_delete=models.PROTECT,
                                  related_name='added')
+
     quantity = models.PositiveIntegerField(
         'quantity of an item')  # TODO: make sure it is > 0
 
@@ -83,8 +73,13 @@ class CollectionItem(models.Model):
         # that the collection this item belongs.
         w = self.collection.workspace
         if w not in self.added_by.workspaces or w not in self.bought_by.workspaces:
-            #if w != self.added_by.workspace or w != self.bought_by.workspace:
             raise ValidationError(
                 gettext_lazy(
                     'Members must be members of the workspace the Collection belongs to'
                 ))
+
+    class Meta:
+        unique_together = (
+            'collection',
+            'name',
+        )

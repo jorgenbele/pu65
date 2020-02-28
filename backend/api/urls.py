@@ -19,7 +19,10 @@ from django.contrib.auth.models import User
 from django.contrib import admin
 from rest_framework import routers, serializers, viewsets
 
-from app.views import CollectionsViewSet, CollectionsItemViewSet, MembersViewSet, WorkspacesViewSet
+from app.views import CollectionsViewSet, CollectionsItemViewSet, \
+    MembersViewSet, WorkspacesViewSet
+
+from app.views import collection_item, workspace_collection
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -28,12 +31,16 @@ router.register(r'members', MembersViewSet)
 router.register(r'workspaces', WorkspacesViewSet)
 router.register(r'collections', CollectionsViewSet)
 router.register(r'items', CollectionsItemViewSet)
-# register views here
-#router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    #url(r'admin/', admin.site.urls, name='admin'),
+    path('admin/', admin.site.urls, name='admin'),
+    path(r'collections/<int:pk>/item/',
+         collection_item,
+         name='collections_item'),
+    path(r'workspaces/<int:pk>/collection/',
+         workspace_collection,
+         name='workspace_collection'),
     path('api-token-auth/', obtain_auth_token),
     path('api-auth/', include('rest_framework.urls',
                               namespace='rest_framework'))
