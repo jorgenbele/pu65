@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
-import shoppingList from './shoppingList'
 import workspaces from './workspaces'
 import auth from './auth'
+import collections from './collections'
 
-export default combineReducers({ shoppingList, workspaces, auth })
+export default combineReducers({ workspaces, auth, collections })

@@ -8,11 +8,17 @@ import { ListItem, Badge } from 'react-native-elements'
 import TouchableScale from 'react-native-touchable-scale'
 
 // ...
-import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH } from './constants/Urls'
+import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH } from './constants/Urls'
 
 import {
   authLoginSuccess, authLoginPending, authLoginError,
-  fetchWorkspacesSuccess, fetchWorkspacesPending, fetchWorkspacesError
+  createWorkspacesSuccess, createWorkspacesPending, createWorkspacesError,
+  fetchWorkspacesSuccess, fetchWorkspacesPending, fetchWorkspacesError,
+  fetchCollectionsSuccess, fetchCollectionsPending, fetchCollectionsError,
+  createCollectionSuccess, createCollectionPending, createCollectionError,
+  addItemToCollectionSuccess, /* addItemToCollectionPending, */ addItemToCollectionError,
+
+  removeItem
 } from './redux/actions'
 
 export const makeIcon = (name, focused) => {
@@ -78,6 +84,50 @@ export const makeListItem = (title, subtitle) => (
     chevron={{ color: 'white' }}
   />
 )
+
+export const makeCollectionListItem = (collection, props) => {
+  return (
+  // FROM: https://react-native-elements.github.io/react-native-elements/docs/listitem.html
+    <ListItem
+      key={collection.name + collection.workspace.id} // FIXME: make unique
+      Component={TouchableScale}
+      friction={90} //
+      tension={100} // These props are passed to the parent component (here TouchableScale)
+      activeScale={0.95} //
+      linearGradientProps={uniqueColor(collection.name, collection.workspace.name)}
+      // ViewComponent={LinearGradient} // Only if no expo
+      leftAvatar={{ rounded: true, title: collection.name[0] }}
+      title={collection.name}
+      titleStyle={{ color: 'white', fontWeight: 'bold' }}
+      subtitleStyle={{ color: 'white' }}
+      subtitle={collection.workspace.name}
+      chevron={{ color: 'white' }}
+      {...props}
+    />
+  )
+}
+
+export const makeCollectionItem = (item, props) => {
+  return (
+  // FROM: https://react-native-elements.github.io/react-native-elements/docs/listitem.html
+    <ListItem
+      key={item.name} // FIXME: make unique
+      Component={TouchableScale}
+      friction={90} //
+      tension={100} // These props are passed to the parent component (here TouchableScale)
+      activeScale={0.95} //
+      linearGradientProps={uniqueColor(item.name, item.name)}
+      // ViewComponent={LinearGradient} // Only if no expo
+      leftAvatar={{ rounded: true, title: item.name[0] }}
+      title={item.name}
+      titleStyle={{ color: 'white', fontWeight: 'bold' }}
+      subtitleStyle={{ color: 'white' }}
+      subtitle={item.created_by}
+      chevron={{ color: 'white' }}
+      {...props}
+    />
+  )
+}
 
 export const makeWorkspaceListItem = workspace => {
   // Example of withBadge: shows the number of members in the workspace in the icon
@@ -170,8 +220,11 @@ export const fetchWorkspaces = () => {
       .then(jsonData => {
         console.log(jsonData)
 
+        // const data = jsonData.map(workspace => {
+        //   return { ...workspace, isOwner: (workspace.members[workspace.owner] === getState().auth.username) }
+        // })
         const data = jsonData.map(workspace => {
-          return { ...workspace, isOwner: (workspace.members[workspace.owner] === getState().auth.username) }
+          return { ...workspace, isOwner: true }
         })
         dispatch(fetchWorkspacesSuccess(data))
       })
@@ -179,5 +232,195 @@ export const fetchWorkspaces = () => {
         console.log(error)
         dispatch(fetchWorkspacesError(error))
       })
+  }
+}
+
+export const createWorkspace = (newWorkspace) => {
+  return (dispatch, getState) => {
+    dispatch(createWorkspacesPending(newWorkspace))
+
+    const url = BASE_URL + WORKSPACES_PATH
+    console.log(url)
+
+    const auth = authorizationToken(getState())
+    console.log('auth token: ')
+    console.log(auth)
+
+    return fetch(url, {
+      method: 'POST',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      }),
+      body: JSON.stringify(newWorkspace)
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log('CREATED WORKSPACE!!!!§')
+        console.log(jsonData)
+
+        const createdWorkspace = { ...jsonData, isOwner: true }
+        dispatch(createWorkspacesSuccess(createdWorkspace))
+        dispatch(fetchWorkspaces())
+      })
+      .catch(error => {
+        console.log(error)
+        dispatch(createWorkspacesError(newWorkspace, error))
+      })
+  }
+}
+
+export const fetchCollections = () => {
+  return (dispatch, getState) => {
+    dispatch(fetchCollectionsPending())
+
+    const url = BASE_URL + COLLECTIONS_PATH
+
+    console.log('FETCH COLLECTIONS TOKEN')
+    console.log(authorizationToken(getState()))
+
+    return fetch(url, {
+      method: 'GET',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      })
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log(jsonData)
+        dispatch(fetchCollectionsSuccess(jsonData))
+      })
+      .catch(error => {
+        console.log(error)
+        dispatch(fetchCollectionsError(error))
+      })
+  }
+}
+
+export const createCollection = (workspaceId, collectionName) => {
+  return (dispatch, getState) => {
+    dispatch(createCollectionPending(workspaceId, collectionName))
+    console.log('Creating collection ' + workspaceId + ' , ' + collectionName)
+
+    const url = BASE_URL + COLLECTIONS_PATH
+
+    return fetch(url, {
+      method: 'POST',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      }),
+      body: JSON.stringify({ workspaceId, name: collectionName })
+
+    }).then(data => data.json())
+      .then(jsonData => {
+        if (jsonData.detail) {
+          console.log('ERROR CREATE')
+          console.log(jsonData)
+          dispatch(createCollectionError(workspaceId, collectionName, jsonData))
+        } else {
+          console.log('SUCCESS CREATE')
+          console.log(jsonData)
+          dispatch(createCollectionSuccess(jsonData))
+        }
+      })
+      .catch(error => {
+        console.log('ERROR CREATE')
+        console.log(error)
+        dispatch(createCollectionError(workspaceId, collectionName, error))
+      })
+  }
+}
+
+//  export const fetchCollection = (collectionId) => {
+//    return (dispatch, getState) => {
+//      dispatch(fetchCollectionPending(collectionId))
+//
+//      const url = BASE_URL + COLLECTIONS_PATH
+//
+//      return fetch(url, {
+//        method: 'GET',
+//        headers: new Headers({
+//          'Content-type': 'application/json',
+//          ...authorizationToken(getState())
+//        })
+//      }).then(data => data.json())
+//        .then(jsonData => {
+//          console.log(jsonData)
+//          dispatch(fetchCollectionSuccess(jsonData))
+//        })
+//        .catch(error => {
+//          console.log(error)
+//          dispatch(fetchCollectionError(collectionId, error))
+//        })
+//    }
+//  }
+
+export const updateItemState = (collectionId, item) => {
+  return (dispatch, getState) => {
+    console.log('updateItemState')
+    // dispatch(addItemToCollectionPending(collectionId))
+
+    const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
+    console.log(url)
+
+    console.log(authorizationToken(getState()))
+
+    return fetch(url, {
+      method: 'PUT',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      }),
+      body: JSON.stringify(item)
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log('ADDED ITEM')
+        console.log(jsonData)
+        dispatch(addItemToCollectionSuccess(collectionId, item))
+      })
+      .catch(error => {
+        console.log('ADDEERROR')
+        console.log(error)
+        dispatch(addItemToCollectionError(collectionId, item, error))
+      })
+  }
+}
+
+export const addItemToCollection = (collectionId, item) => {
+  return (dispatch, getState) => {
+    console.log('addItemToCollection')
+    // dispatch(addItemToCollectionPending(collectionId))
+
+    const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
+    console.log(url)
+
+    console.log(authorizationToken(getState()))
+
+    return fetch(url, {
+      method: 'PUT',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      }),
+      body: JSON.stringify(item)
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log('ADDED ITEM')
+        console.log(jsonData)
+        dispatch(addItemToCollectionSuccess(collectionId, item))
+        dispatch(fetchCollections())
+      })
+      .catch(error => {
+        console.log('ADDEERROR')
+        console.log(error)
+        dispatch(addItemToCollectionError(collectionId, item, error))
+      })
+  }
+}
+
+export const removeItemFromCollection = (collectionId, item) => {
+  return (dispatch, getState) => {
+    console.log('remove item from collection')
+    dispatch(removeItem(collectionId, item))
   }
 }

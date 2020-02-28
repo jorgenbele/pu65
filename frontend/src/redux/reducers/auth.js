@@ -1,8 +1,8 @@
 import { AUTH } from '../actionTypes'
 
 const initialState = {
-  username: null,
-  token: null
+  username: 'jbr',
+  token: '716e8f4f78eab7d4dff3a4237a94b32c9159e244'
 }
 
 export default function (state = initialState, action) {
@@ -13,13 +13,12 @@ export default function (state = initialState, action) {
 
     case AUTH.LOG_IN_SUCCESS: {
       const { username, token } = action.payload
-      console.log(username + ' ' + token)
-
+      console.log('LOGGED IN: ', username + ' ' + token)
       return { ...state, pending: false, username, token }
     }
 
     case AUTH.LOG_IN_ERROR: {
-      const { error } = action
+      const { error } = action.payload
       return { ...state, pending: false, error }
     }
 

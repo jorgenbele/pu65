@@ -7,12 +7,12 @@ import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
 
 import { connect } from 'react-redux'
 
-import store from '../redux/store'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import {
   fetchWorkspaces,
-  makeWorkspaceListItem
+  makeWorkspaceListItem,
+  createWorkspace
 } from '../utils'
 
 class WorkspacesScreen extends React.Component {
@@ -28,18 +28,19 @@ class WorkspacesScreen extends React.Component {
 
   shouldComponentRender () {
     // TODO: more checks
-    const { pending } = this.props
-    if (!pending) return false
+    const { fetchPending } = this.props
+    if (!fetchPending) return false
     return true
   }
 
   render () {
-    const { workspaces, error, pending } = this.props
-    console.log(pending)
+    const { workspaces, error, fetchPending, fetchWorkspaces } = this.props
+    console.log(fetchPending)
+    console.log(fetchWorkspaces)
     console.log(error)
     console.log(workspaces)
 
-    if (pending) {
+    if (fetchPending) {
       return <ActivityIndicator animating color='#FF0000' />
     }
 
@@ -61,10 +62,12 @@ class WorkspacesScreen extends React.Component {
       w => !isWorkspaceOwner(w)
     )
 
+    const { createWorkspace } = this.props
+
     // const iconicon = makeIcon(true, 'list');
     return (
       <>
-        {this.props.workspaces.length <= 0 ? (
+        {workspaces.length <= 0 ? (
           // Display a banner when no workspaces are added
           <PopupInfoBanner
             visible
@@ -88,7 +91,7 @@ class WorkspacesScreen extends React.Component {
                     //  key={workspace + index.toString()}
                     //  title={workspace.name}
                     //  left={() => <List.Icon icon={this.props.workspaceIcon} />}
-                    /// >
+                    /// >ConnectedWorkspacesScreenConnectedWorkspacesScreen
                   })}
                 </>
               )}
@@ -113,10 +116,8 @@ class WorkspacesScreen extends React.Component {
           medium
           icon='plus'
           onPress={() => {
-            console.log(store.getState())
-            // this.props.createWorkspace({name: 'testworkspace'});
-            console.log('Pressed')
-            console.log(store.getState())
+            console.log('creating workspace!')
+            createWorkspace({ name: 'Test workspace' + workspaces.length })
           }} // FIXME: Add authentication/creation of workspace
         />
       </>
@@ -128,18 +129,21 @@ WorkspacesScreen.defaultProps = {
   workspaceIcon: 'folder',
   // FIXME: members should include current user
   error: null,
-  pending: false,
+  fetchPending: false,
+  createPending: [],
   workspaces: []
 }
 
 const mapStateToProps = state => ({
   workspaces: state.workspaces.workspaces,
   error: state.workspaces.error,
-  pending: state.workspaces.pending
+  fetchPending: state.workspaces.fetchPending,
+  createPending: state.workspaces.createPending
 })
 
 const mapDispatchToProps = {
-  fetchWorkspaces
+  fetchWorkspaces,
+  createWorkspace
 }
 
 const ConnectedWorkspacesScreen = connect(mapStateToProps, mapDispatchToProps)(WorkspacesScreen)

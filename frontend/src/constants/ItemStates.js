@@ -1,0 +1,3 @@
+export const STATE_ADDED = 'STATE_ADDED'
+export const STATE_CANCELLED = 'STATE_CANCELLED'
+export const STATE_BOUGHT = 'STATE_BOUGHT'

@@ -1,7 +1,8 @@
 import { WORKSPACE } from '../actionTypes'
 
 const initialState = {
-  pending: false,
+  fetchPending: false,
+  createPending: [],
   error: null,
 
   workspaces: [
@@ -30,48 +31,45 @@ const initialState = {
 }
 
 export default function (state = initialState, action) {
-  console.log('WORKSPACE REDUCER')
   switch (action.type) {
+    case WORKSPACE.CREATE_PENDING: {
+      const { workspaceName } = action.payload
+      return { ...state, createPending: [...state.createPending, workspaceName] }
+    }
+
+    case WORKSPACE.CREATE_SUCCESS: {
+      const { createdWorkspace } = action.payload
+      return {
+        ...state,
+        createPending: [...state.createPending.filter(w => w !== createdWorkspace.name)]
+      }
+    }
+
+    case WORKSPACE.CREATE_ERROR: {
+      const { failedWorkspaceName, error } = action.payload
+      return {
+        ...state,
+        error,
+        createPending: [...state.createPending.filter(w => w !== failedWorkspaceName)]
+      }
+    }
+
     case WORKSPACE.FETCH_PENDING: {
-      console.log('workspace pending')
-      return { ...state, pending: true }
+      return { ...state, fetchPending: true }
     }
 
     case WORKSPACE.FETCH_SUCCESS: {
-      console.log('workspace success')
-      const { workspaces } = action
+      const { workspaces } = action.payload
       console.log(workspaces)
-      return { ...state, pending: false, workspaces }
+      return { ...state, fetchPending: false, workspaces }
     }
 
     case WORKSPACE.FETCH_ERROR: {
-      console.log('workspace error')
-      const { error } = action
-      return { ...state, pending: false, error }
+      const { error } = action.payload
+      return { ...state, fetchPending: false, error }
     }
 
-    case WORKSPACE.CREATE: {
-      // console.log('action.payload');
-      // console.log(action.payload);
-      const { name } = action.payload
-
-      return [
-        ...state,
-        {
-          name,
-          isOwner: true,
-          members: ['jbr'],
-          collections: [],
-          id: 1 + state.reduce((l, r) => (l.id > r.id ? l.id : r.id), 0)
-        }
-      ]
-    }
     default:
       return state
   }
 }
-
-// Selectors: https://dev.to/markusclaus/fetching-data-from-an-api-using-reactredux-55ao
-export const getWorkspaces = state => state.workspaces
-export const getWorkspacesPending = state => state.pending
-export const getWorkspacesError = state => state.error

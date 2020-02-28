@@ -4,19 +4,28 @@ import {
 } from 'react-native'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { Provider as StoreProvider } from 'react-redux'
-import store from './src/redux/store'
 
-import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
-import { createAppContainer } from 'react-navigation'
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
-
-import ListsScreen from './src/screens/ListsScreen'
+//
 import SettingsScreen from './src/screens/SettingsScreen'
 import WorkspacesScreen from './src/screens/WorkspacesScreen'
 
-import { makeIcon } from './src/utils'
+import MainStackNavigator from './src/navigation/MainStackNavigator'
+
+import { authLogin, makeIcon } from './src/utils'
+import store from './src/redux/store'
+import SECRETS from './src/secrets'
+
+const login = () => {
+  store.dispatch(authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD))
+}
+
+const BottomTab = createMaterialBottomTabNavigator()
 
 export default function App () {
+  login()
+
   return (
     <StoreProvider store={store}>
       <PaperProvider>
@@ -25,9 +34,24 @@ export default function App () {
         }
         <StatusBar hidden />
 
-        {/* The BottomTabContainer needs to be wrapped in a NavigationContainer to allow nested navigators */}
         <NavigationContainer>
-          <BottomTabContainer />
+          <BottomTab.Navigator shifting>
+            <BottomTab.Screen
+              name='Collections'
+              component={MainStackNavigator}
+              options={makeNavigationOptions('Collections', 'list', '#00796b')}
+            />
+            <BottomTab.Screen
+              name='Workspaces'
+              component={WorkspacesScreen}
+              options={makeNavigationOptions('Workspace', 'apps', '#6200ee')}
+            />
+            <BottomTab.Screen
+              name='Settings'
+              component={SettingsScreen}
+              options={makeNavigationOptions('Settings', 'settings', '#FFFFFF')}
+            />
+          </BottomTab.Navigator>
         </NavigationContainer>
       </PaperProvider>
     </StoreProvider>
@@ -36,34 +60,8 @@ export default function App () {
 
 const makeNavigationOptions = (label, iconName, color) => {
   return {
-    navigationOptions: {
-      tabBarLabel: label,
-      tabBarColor: color,
-      tabBarIcon: ({ focused }) => makeIcon(iconName, focused)
-    }
+    tabBarLabel: label,
+    tabBarColor: color,
+    tabBarIcon: ({ focused }) => makeIcon(iconName, focused)
   }
 }
-
-const BottomTabNavigator = createMaterialBottomTabNavigator(
-  {
-    Lists: {
-      screen: ListsScreen,
-      ...makeNavigationOptions('Lists', 'list', '#00796b')
-    },
-    Workspaces: {
-      screen: WorkspacesScreen,
-      ...makeNavigationOptions('Workspaces', 'apps', '#6200ee')
-    },
-    Settings: {
-      screen: SettingsScreen,
-      ...makeNavigationOptions('Settings', 'settings', '#FFFFFF')
-    }
-  },
-  {
-    initialRouteName: 'Lists',
-    shifting: true
-    // activeColor: "#F44336"
-  }
-)
-
-const BottomTabContainer = createAppContainer(BottomTabNavigator)
