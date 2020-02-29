@@ -27,6 +27,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         else:
             return request.user.is_staff
 
+
 class IsCollectionItemWorkspaceMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Only workspace members will have read/write access
@@ -37,6 +38,7 @@ class IsCollectionItemWorkspaceMember(permissions.BasePermission):
         print('IsCollectionItemWorkspaceMember', member)
         return member in obj.collection.workspace.members.all()
 
+
 class IsCollectionWorkspaceMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         try:
@@ -46,3 +48,14 @@ class IsCollectionWorkspaceMember(permissions.BasePermission):
 
         print('IsCollectionWorkspaceMember', member)
         return member in obj.workspace.members.all()
+
+
+class IsWorkspaceMember(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        try:
+            member = Member.objects.get(id=request.user.id)
+        except Member.DoesNotExist:
+            return False
+
+        print('isWorkspaceMember', member.id, obj.id)
+        return member.id == obj.id

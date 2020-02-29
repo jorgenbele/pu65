@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from .models import Collection, CollectionItem, Member, Workspace
 from .serializers import CollectionSerializer, CollectionItemSerializer
@@ -14,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .permissions import IsCollectionItemWorkspaceMember, IsCollectionWorkspaceMember
+from .permissions import IsWorkspaceMember
 
 
 class MembersViewSet(viewsets.ModelViewSet):
@@ -87,6 +89,7 @@ def workspace_collection(request, pk):
         return Response(data={'failure': 'not logged in or something'},
                         status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view([
     'PUT',
     'DELETE',
@@ -122,6 +125,7 @@ def collection_item(request, pk):
         return Response(data={'failure': 'not logged in or something'},
                         status=status.HTTP_400_BAD_REQUEST)
 
+
 #class CollectionItemDetail(APIView):
 #    def get_object(self, pk):
 #        try:
@@ -152,3 +156,21 @@ class CollectionItemDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = CollectionItem.objects.all()
     serializer_class = CollectionItemSerializer
     permission_classes = (IsCollectionItemWorkspaceMember, )
+
+
+class MemberDetail(generics.RetrieveAPIView):
+    queryset = Member.objects.all()
+    serializer_class = MemberSerializer
+    permission_classes = (IsWorkspaceMember, )
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in ['username']:
+            filter[field] = self.kwargs[field]
+
+        print('MEMBER DETAIL', filter)
+
+        obj = get_object_or_404(queryset, **filter)
+        self.check_object_permissions(self.request, obj)
+        return obj

@@ -19,13 +19,11 @@ class Workspace(models.Model):
 
     members = models.ManyToManyField(Member, related_name='part_of_workspaces')
 
-
     def save(self, *args, **kwargs):
         # Make sure the owner is always in members
         super().save(*args, **kwargs)
         if not self.members.filter(pk=self.owner.pk):
             self.members.add(self.owner)
-
 
     def clean(self):
         # make sure that all WorkspaceMembers are members of the workspace
@@ -35,9 +33,7 @@ class Workspace(models.Model):
             self.members.get(pk=o.pk)
         except Member.DoesNotExist:
             raise ValidationError(
-                gettext_lazy(
-                    'Workspace owner must also be member'
-                ))
+                gettext_lazy('Workspace owner must also be member'))
 
     def __str__(self):
         return self.name
@@ -60,8 +56,7 @@ class Collection(models.Model):
         if w not in self.created_by.workspaces:
             raise ValidationError(
                 gettext_lazy(
-                    'Collection must be created by a workspace member'
-                ))
+                    'Collection must be created by a workspace member'))
 
     class Meta:
         # Collection names must be unique for a collection
