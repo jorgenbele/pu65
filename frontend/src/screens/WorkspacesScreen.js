@@ -32,7 +32,7 @@ class WorkspacesScreen extends React.Component {
 
   render () {
     const { workspaces, fetchPending } = this.props
-    const { navigation, createWorkspace } = this.props
+    const { navigation } = this.props
 
     if (fetchPending) {
       return <ActivityIndicator animating color='#FF0000' />
@@ -63,23 +63,15 @@ class WorkspacesScreen extends React.Component {
       )
     }
 
-    // const iconicon = makeIcon(true, 'list');
     return (
       <>
-        {
-        // <WorkspaceCreateForm
-        //   createNewWorkspace={(workspaceName, callback) => { createWorkspace({ name: workspaceName }, callback) }}
-        // />
-        }
-
         {workspaces.length <= 0 ? (
           // Display a banner when no workspaces are added
           <PopupInfoBanner
             visible
-            message='You are currently without a workspace'
-            confirmLabel='Add a workspace'
-            confirmAction={(ConnectedWorkspacesScreen) => { handleCreateNewWorkspace() }}
-            ignoreLabel='Not now'
+            confirmLabel=''
+            message='Create a new workspace by pressing the plus button'
+            ignoreLabel='Dismiss'
             icon='exclamation'
           />
         ) : (
@@ -90,11 +82,6 @@ class WorkspacesScreen extends React.Component {
                   <List.Subheader>Workspaces you manage</List.Subheader>
                   {managingWorkspaces.map((workspace, index) => {
                     return makeWorkspaceListItem(workspace)
-                    // <List.Item
-                    //  key={workspace + index.toString()}
-                    //  title={workspace.name}
-                    //  left={() => <List.Icon icon={this.props.workspaceIcon} />}
-                    /// >ConnectedWorkspacesScreenConnectedWorkspacesScreen
                   })}
                 </>
               )}
@@ -102,11 +89,6 @@ class WorkspacesScreen extends React.Component {
               <List.Subheader>Workspaces you are part of</List.Subheader>
               {joinedWorkspaces.map((workspace, index) => {
                 return (
-                // <List.Item
-                //  key={workspace + index.toString()}
-                //  title={workspace.name}
-                //  left={() => <List.Icon icon={this.props.workspaceIcon} />}
-                /// >
                   makeWorkspaceListItem(workspace)
                 )
               })}
@@ -118,9 +100,7 @@ class WorkspacesScreen extends React.Component {
           style={styles.fab}
           medium
           icon='plus'
-          onPress={() => {
-            handleCreateNewWorkspace()
-          }} // FIXME: Add authentication/creation of workspace
+          onPress={handleCreateNewWorkspace}
         />
       </>
     )
