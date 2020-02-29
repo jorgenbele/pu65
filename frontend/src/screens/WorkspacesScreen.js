@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
 import PopupInfoBanner from '../components/PopupInfoBanner'
 import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
@@ -12,99 +12,84 @@ import {
   createWorkspace
 } from '../utils'
 
-class WorkspacesScreen extends React.Component {
-  constructor (props) {
-    super(props)
-    this.shouldComponentRender = this.shouldComponentRender.bind(this)
-  }
-
-  componentDidMount () {
-    const { fetchWorkspaces } = this.props
+function WorkspacesScreen ({ navigation, ...props }) {
+  useEffect(() => {
+    const { fetchWorkspaces } = props
     fetchWorkspaces()
+  }, [])
+
+  const { workspaces, fetchPending } = props
+
+  if (fetchPending) {
+    return <ActivityIndicator animating color='#FF0000' />
   }
 
-  shouldComponentRender () {
-    // TODO: more checks
-    const { fetchPending } = this.props
-    if (!fetchPending) return false
-    return true
-  }
-
-  render () {
-    const { workspaces, fetchPending } = this.props
-    const { navigation } = this.props
-
-    if (fetchPending) {
-      return <ActivityIndicator animating color='#FF0000' />
+  const styles = StyleSheet.create({
+    fab: {
+      position: 'absolute',
+      margin: 16,
+      right: 0,
+      bottom: 0
     }
+  })
 
-    const styles = StyleSheet.create({
-      fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0
-      }
-    })
+  const isWorkspaceOwner = workspace => workspace.isOwner
 
-    const isWorkspaceOwner = workspace => workspace.isOwner
+  const managingWorkspaces = props.workspaces.filter(isWorkspaceOwner)
+  const joinedWorkspaces = props.workspaces.filter(
+    w => !isWorkspaceOwner(w)
+  )
 
-    const managingWorkspaces = this.props.workspaces.filter(isWorkspaceOwner)
-    const joinedWorkspaces = this.props.workspaces.filter(
-      w => !isWorkspaceOwner(w)
+  // TODO: use redux store to handle pending create
+  const handleCreateNewWorkspace = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'CreateWorkspace'
+      })
     )
+  }
 
-    // TODO: use redux store to handle pending create
-    const handleCreateNewWorkspace = () => {
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'CreateWorkspace'
-        })
-      )
-    }
-
-    return (
-      <>
-        {workspaces.length <= 0 ? (
-          // Display a banner when no workspaces are added
-          <PopupInfoBanner
-            visible
-            confirmLabel=''
-            message='Create a new workspace by pressing the plus button'
-            ignoreLabel='Dismiss'
-            icon='exclamation'
-          />
-        ) : (
-          <ScrollView>
-            <List.Section>
-              {managingWorkspaces.length > 0 && (
-                <>
-                  <List.Subheader>Workspaces you manage</List.Subheader>
-                  {managingWorkspaces.map((workspace, index) => {
-                    return makeWorkspaceListItem(workspace)
-                  })}
-                </>
-              )}
-
-              <List.Subheader>Workspaces you are part of</List.Subheader>
-              {joinedWorkspaces.map((workspace, index) => {
-                return (
-                  makeWorkspaceListItem(workspace)
-                )
-              })}
-            </List.Section>
-          </ScrollView>
-        )}
-
-        <FAButton
-          style={styles.fab}
-          medium
-          icon='plus'
-          onPress={handleCreateNewWorkspace}
+  return (
+    <>
+      {workspaces.length <= 0 ? (
+        // Display a banner when no workspaces are added
+        <PopupInfoBanner
+          visible
+          confirmLabel=''
+          message='Create a new workspace by pressing the plus button'
+          ignoreLabel='Dismiss'
+          icon='exclamation'
         />
-      </>
-    )
-  }
+      ) : (
+        <ScrollView>
+          <List.Section>
+            {managingWorkspaces.length > 0 && (
+              <>
+                <List.Subheader>Workspaces you manage</List.Subheader>
+                {managingWorkspaces.map((workspace, index) => {
+                  return makeWorkspaceListItem(workspace)
+                })}
+              </>
+            )}
+
+            <List.Subheader>Workspaces you are part of</List.Subheader>
+            {joinedWorkspaces.map((workspace, index) => {
+              return (
+                makeWorkspaceListItem(workspace)
+              )
+            })}
+          </List.Section>
+        </ScrollView>
+      )}
+
+      <FAButton
+        style={styles.fab}
+        medium
+        icon='plus'
+        onPress={handleCreateNewWorkspace}
+      />
+    </>
+  )
 }
 
 WorkspacesScreen.defaultProps = {
