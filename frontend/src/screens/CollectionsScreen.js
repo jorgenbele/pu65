@@ -1,10 +1,8 @@
 import React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
+import { connect } from 'react-redux'
 
 import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
-
-import { connect } from 'react-redux'
-import uuidv4 from 'uuid/v4'
 
 import {
   fetchCollections,
@@ -49,7 +47,16 @@ class CollectionsScreen extends React.Component {
       return <ActivityIndicator animating color='#FF0000' />
     }
 
-    const { createCollection, navigation } = this.props
+    const { navigation } = this.props
+
+    // TODO: use redux store to handle pending create
+    const handleCreateNewCollection = () => {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'CreateCollection'
+        })
+      )
+    }
 
     return (
       <>
@@ -72,10 +79,7 @@ class CollectionsScreen extends React.Component {
           style={styles.fab}
           medium
           icon='plus'
-          onPress={() => {
-            console.log('CREATING COLLECTION')
-            createCollection(1, 'Test list' + uuidv4())
-          }} // FIXME: Add authentication/creation of workspace
+          onPress={handleCreateNewCollection}
         />
       </>
     )

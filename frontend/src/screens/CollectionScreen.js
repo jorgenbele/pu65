@@ -3,7 +3,7 @@ import React from 'react'
 import { StyleSheet, ScrollView } from 'react-native'
 import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
 import { connect } from 'react-redux'
-import uuidv4 from 'uuid/v4'
+import { CommonActions } from '@react-navigation/native'
 
 import {
   makeCollectionItem,
@@ -14,9 +14,9 @@ import {
 } from '../utils'
 import { STATE_BOUGHT } from '../constants/ItemStates'
 
-const CollectionScreen = props => {
-  const { route, collections } = props
+const CollectionScreen = ({ navigation, collections, route, addItemToCollection, ...props }) => {
   const { collectionId } = route.params
+
   console.log('CollectionScreen collectionId: ' + collectionId)
   const collectionArray = collections.filter(c => c.id === collectionId)
 
@@ -35,7 +35,16 @@ const CollectionScreen = props => {
     }
   })
 
-  const { updateItemOfCollection, addItemToCollection } = props
+  const handleAddItem = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AddItemToCollection',
+        params: { collection }
+      })
+    )
+  }
+
+  const { updateItemOfCollection } = props
   return (
     <>
       <ScrollView>
@@ -60,10 +69,7 @@ const CollectionScreen = props => {
         style={styles.fab}
         medium
         icon='plus'
-        onPress={() => {
-          console.log('ADDING ITEM')
-          addItemToCollection(collectionId, { name: 'Test element' + uuidv4(), quantity: 1 })
-        }}
+        onPress={handleAddItem}
       />
     </>
   )

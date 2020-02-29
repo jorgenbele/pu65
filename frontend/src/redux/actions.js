@@ -1,4 +1,4 @@
-import { AUTH, COLLECTION, WORKSPACE } from './actionTypes'
+import { AUTH, COLLECTION, WORKSPACE, MEMBERS } from './actionTypes'
 
 // Collection
 // FETCH
@@ -52,7 +52,6 @@ export function updateItemOfCollectionSuccess (collectionId, item) {
 export function updateItemOfCollectionError (collectionId, item, error) {
   return { type: COLLECTION.UPDATE_ITEM_ERROR, payload: { collectionId, item, error } }
 }
-
 
 // ShoppingList
 export function addItem (collection, item) {
@@ -123,3 +122,15 @@ export function authLogout (token) {
 // export function authCreate(username, password) {
 //    return { type: AUTH.CREATE, payload: { username, password } }
 // }
+
+export function fetchMemberPending () {
+  return { type: MEMBERS.FETCH_PENDING }
+}
+
+export function fetchMemberSuccess (id, username, workspaces) {
+  return { type: MEMBERS.FETCH_SUCCESS, payload: { id, username, workspaces } }
+}
+
+export function fetchMemberError (error) {
+  return { type: MEMBERS.FETCH_ERROR, payload: { error } }
+}

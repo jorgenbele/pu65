@@ -8,7 +8,7 @@ import { ListItem, Badge } from 'react-native-elements'
 import TouchableScale from 'react-native-touchable-scale'
 
 // ...
-import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH, ITEMS_PATH } from './constants/Urls'
+import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH, ITEMS_PATH, MEMBERS_PATH } from './constants/Urls'
 
 import {
   authLoginSuccess, authLoginPending, authLoginError,
@@ -18,6 +18,8 @@ import {
   createCollectionSuccess, createCollectionPending, createCollectionError,
   addItemToCollectionSuccess, addItemToCollectionPending, addItemToCollectionError,
   updateItemOfCollectionSuccess, updateItemOfCollectionPending, updateItemOfCollectionError,
+
+  fetchMemberSuccess, fetchMemberPending, fetchMemberError,
 
   removeItem
 } from './redux/actions'
@@ -193,6 +195,9 @@ export function authLogin (username, password) {
     }).then(data => data.json())
       .then(jsonData => {
         dispatch(authLoginSuccess(username, jsonData.token))
+
+        // FIXME: should probably not be here, this fetches the member
+        dispatch(fetchMember(username))
       })
       .catch(error => {
         dispatch(authLoginError(error))
@@ -301,10 +306,10 @@ export const fetchCollections = () => {
   }
 }
 
-export const createCollection = (workspaceId, collectionName) => {
+export const createCollection = (workspace, collectionName) => {
   return (dispatch, getState) => {
-    dispatch(createCollectionPending(workspaceId, collectionName))
-    console.log('Creating collection ' + workspaceId + ' , ' + collectionName)
+    dispatch(createCollectionPending(workspace.id, collectionName))
+    console.log('Creating collection ' + workspace.id + ' , ' + collectionName)
 
     const url = BASE_URL + COLLECTIONS_PATH
 
@@ -314,24 +319,14 @@ export const createCollection = (workspaceId, collectionName) => {
         'Content-type': 'application/json',
         ...authorizationToken(getState())
       }),
-      body: JSON.stringify({ workspaceId, name: collectionName })
+      body: JSON.stringify({ workspace, name: collectionName })
 
     }).then(data => data.json())
       .then(jsonData => {
-        if (jsonData.detail) {
-          console.log('ERROR CREATE')
-          console.log(jsonData)
-          dispatch(createCollectionError(workspaceId, collectionName, jsonData))
-        } else {
-          console.log('SUCCESS CREATE')
-          console.log(jsonData)
-          dispatch(createCollectionSuccess(jsonData))
-        }
+        dispatch(createCollectionSuccess(jsonData))
       })
       .catch(error => {
-        console.log('ERROR CREATE')
-        console.log(error)
-        dispatch(createCollectionError(workspaceId, collectionName, error))
+        dispatch(createCollectionError(workspace.id, collectionName, error))
       })
   }
 }
@@ -390,7 +385,7 @@ export const updateItemOfCollection = (collectionId, item) => {
 
 export const addItemToCollection = (collectionId, item) => {
   return (dispatch, getState) => {
-    dispatch(addItemToCollectionPending(collectionId))
+    dispatch(addItemToCollectionPending(collectionId, item))
 
     const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
     console.log(url)
@@ -423,5 +418,31 @@ export const removeItemFromCollection = (collectionId, item) => {
   return (dispatch, getState) => {
     console.log('remove item from collection')
     dispatch(removeItem(collectionId, item))
+  }
+}
+
+export const fetchMember = (username) => {
+  return (dispatch, getState) => {
+    dispatch(fetchMemberPending())
+
+    const url = BASE_URL + MEMBERS_PATH + username + '/'
+    console.log(url)
+
+    return fetch(url, {
+      method: 'GET',
+      headers: new Headers({
+        'Content-type': 'application/json',
+        ...authorizationToken(getState())
+      })
+    }).then(data => data.json())
+      .then(jsonData => {
+        console.log(jsonData)
+
+        dispatch(fetchMemberSuccess(jsonData.id, jsonData.username, jsonData.workspaces))
+      })
+      .catch(error => {
+        console.log(error)
+        dispatch(fetchMemberError(error))
+      })
   }
 }

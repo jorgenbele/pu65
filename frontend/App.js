@@ -9,7 +9,6 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import { NavigationContainer } from '@react-navigation/native'
 //
 import SettingsScreen from './src/screens/SettingsScreen'
-import WorkspacesScreen from './src/screens/WorkspacesScreen'
 
 import CollectionsStackNavigator from './src/navigation/CollectionsStackNavigator'
 import WorkspacesStackNavigator from './src/navigation/WorkspacesStackNavigator'

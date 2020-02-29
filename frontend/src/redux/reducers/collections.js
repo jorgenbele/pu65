@@ -86,8 +86,11 @@ export default function (state = initialState, action) {
 
     // TODO FIX
     case COLLECTION.ADD_ITEM_PENDING: {
-      const { collectionId, item } = action.payload
-      return { ...state, addPending: [...state.addPending, { collectionId, item }] }
+      // console.log('ADD_ITEM_PENDING')
+      // console.log(action.payload)
+      // const { collectionId, item } = action.payload
+      // return { ...state, addPending: [...state.addPending, { collectionId, item }] }
+      return { ...state }
     }
 
     // TODO
@@ -122,7 +125,9 @@ export default function (state = initialState, action) {
 
     case COLLECTION.CREATE_SUCCESS: {
       const { collection } = action.payload
-      return { ...state, collections: [state.collectoins, collection] }
+      console.log('CREATE SUCCESS')
+      console.log(collection)
+      return { ...state, collections: [state.collections, collection] }
     }
 
     case COLLECTION.CREATE_ERROR: {
