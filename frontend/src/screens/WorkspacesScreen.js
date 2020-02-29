@@ -35,8 +35,9 @@ function WorkspacesScreen ({ navigation, ...props }) {
 
   const isWorkspaceOwner = workspace => workspace.isOwner
 
-  const managingWorkspaces = props.workspaces.filter(isWorkspaceOwner)
-  const joinedWorkspaces = props.workspaces.filter(
+  const sortedWorkspaces = props.workspaces.sort((l, r) => l.id > r.id ? 1 : (r.id > l.id ? -1 : 0))
+  const managingWorkspaces = sortedWorkspaces.filter(isWorkspaceOwner)
+  const joinedWorkspaces = sortedWorkspaces.filter(
     w => !isWorkspaceOwner(w)
   )
 

@@ -48,13 +48,30 @@ const CollectionScreen = ({ navigation, collections, route, addItemToCollection,
     updateItemOfCollection(collectionId, { ...item, state: item.state === STATE_BOUGHT ? STATE_ADDED : STATE_BOUGHT })
   }
 
+  const sortedItems = items.sort((l, r) => l.id > r.id ? 1 : (r.id > l.id ? -1 : 0))
+  const boughtItems = sortedItems.filter(item => item.state === STATE_BOUGHT)
+  const otherItems = sortedItems.filter(item => item.state !== STATE_BOUGHT)
+
   const { updateItemOfCollection } = props
   return (
     <>
       <ScrollView>
         <List.Section>
           <List.Subheader>Items</List.Subheader>
-          {items.map(item => {
+          {otherItems.map(item => {
+            const checkmark = item.state === STATE_BOUGHT
+            return makeCollectionItem(item, {
+              checkmark,
+              onPress: e => console.log('ITEM PRESSED'),
+              onLongPress: e => handleToggleItemState(item)
+            })
+          })}
+        </List.Section>
+
+
+        <List.Section>
+          <List.Subheader>Bought items</List.Subheader>
+          {boughtItems.map(item => {
             const checkmark = item.state === STATE_BOUGHT
             return makeCollectionItem(item, {
               checkmark,

@@ -10,6 +10,8 @@ import TouchableScale from 'react-native-touchable-scale'
 // ...
 import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH, ITEMS_PATH, MEMBERS_PATH } from './constants/Urls'
 
+import { STATE_ADDED } from './constants/ItemStates'
+
 import {
   authLoginSuccess, authLoginPending, authLoginError,
   createWorkspacesSuccess, createWorkspacesPending, createWorkspacesError,
@@ -59,6 +61,12 @@ export const gradientsMap = {
     start: [1, 0],
     end: [0.2, 0]
   }
+}
+
+const DARK_GRADIENT = {
+  colors: ['#444444', '#222222'],
+  start: [1, 0],
+  end: [0.2, 0]
 }
 
 export const gradients = Object.keys(gradientsMap).map(k => gradientsMap[k])
@@ -114,12 +122,12 @@ export const makeCollectionItem = (item, props) => {
   return (
   // FROM: https://react-native-elements.github.io/react-native-elements/docs/listitem.html
     <ListItem
-      key={item.name} // FIXME: make unique
+      key={item.id} // FIXME: make unique
       Component={TouchableScale}
       friction={90} //
       tension={100} // These props are passed to the parent component (here TouchableScale)
       activeScale={0.95} //
-      linearGradientProps={uniqueColor(item.name, item.name)}
+      linearGradientProps={item.state === STATE_ADDED ? uniqueColor(item.name, item.name) : DARK_GRADIENT}
       // ViewComponent={LinearGradient} // Only if no expo
       leftAvatar={{ rounded: true, title: item.name[0] }}
       title={item.name}
