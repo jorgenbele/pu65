@@ -13,12 +13,13 @@ import SettingsScreen from './src/screens/SettingsScreen'
 import CollectionsStackNavigator from './src/navigation/CollectionsStackNavigator'
 import WorkspacesStackNavigator from './src/navigation/WorkspacesStackNavigator'
 
-import { authLogin, makeIcon } from './src/utils'
+import { authLogin, makeIcon, fetchMember } from './src/utils'
 import store from './src/redux/store'
 import SECRETS from './src/secrets'
 
 const login = () => {
   store.dispatch(authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD))
+  store.dispatch(fetchMember(SECRETS.USER_NAME))
 }
 
 const BottomTab = createMaterialBottomTabNavigator()

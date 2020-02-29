@@ -12,6 +12,8 @@ import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH, ITEMS_PATH, ME
 
 import { STATE_ADDED } from './constants/ItemStates'
 
+import SECRETS from './secrets'
+
 import {
   authLoginSuccess, authLoginPending, authLoginError,
   createWorkspacesSuccess, createWorkspacesPending, createWorkspacesError,
@@ -250,7 +252,7 @@ export const fetchWorkspaces = () => {
 }
 
 // TODO: fix this
-export const createWorkspace = (newWorkspace, responseCallback) => {
+export const createWorkspace = (newWorkspace) => {
   return (dispatch, getState) => {
     dispatch(createWorkspacesPending(newWorkspace))
 
@@ -270,18 +272,17 @@ export const createWorkspace = (newWorkspace, responseCallback) => {
       body: JSON.stringify(newWorkspace)
     }).then(data => data.json())
       .then(jsonData => {
-        console.log('CREATED WORKSPACE!!!!§')
         console.log(jsonData)
 
         const createdWorkspace = { ...jsonData, isOwner: true }
         dispatch(createWorkspacesSuccess(createdWorkspace))
         dispatch(fetchWorkspaces())
-        if (responseCallback) responseCallback({ wasSuccessful: true, workspace: createdWorkspace })
+        // FIXME. hack
+        dispatch(fetchMember(SECRETS.USER_NAME))
       })
       .catch(error => {
         console.log(error)
         dispatch(createWorkspacesError(newWorkspace, error))
-        if (responseCallback) responseCallback({ wasSuccessful: false, error: error })
       })
   }
 }
@@ -332,6 +333,8 @@ export const createCollection = (workspace, collectionName) => {
     }).then(data => data.json())
       .then(jsonData => {
         dispatch(createCollectionSuccess(jsonData))
+        // FIXME hack
+        dispatch(fetchCollections())
       })
       .catch(error => {
         dispatch(createCollectionError(workspace.id, collectionName, error))
