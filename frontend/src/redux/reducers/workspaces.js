@@ -60,7 +60,6 @@ export default function (state = initialState, action) {
 
     case WORKSPACE.FETCH_SUCCESS: {
       const { workspaces } = action.payload
-      console.log(workspaces)
       return { ...state, fetchPending: false, workspaces }
     }
 

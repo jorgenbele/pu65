@@ -22,7 +22,7 @@ from rest_framework import routers, serializers, viewsets
 from app.views import CollectionsViewSet, CollectionsItemViewSet, \
     MembersViewSet, WorkspacesViewSet
 
-from app.views import collection_item, workspace_collection
+from app.views import collection_item, workspace_collection, CollectionItemDetail
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -30,14 +30,18 @@ router = routers.DefaultRouter()
 router.register(r'members', MembersViewSet)
 router.register(r'workspaces', WorkspacesViewSet)
 router.register(r'collections', CollectionsViewSet)
-router.register(r'items', CollectionsItemViewSet)
+#router.register(r'items', CollectionsItemViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls, name='admin'),
-    path(r'collections/<int:pk>/item/',
-         collection_item,
-         name='collections_item'),
+
+#    path(r'collections/<int:pk>/item/',
+#         collection_item,
+#         name='collections_item'),
+
+    path(r'items/<int:pk>/', CollectionItemDetail.as_view()),
+
     path(r'workspaces/<int:pk>/collection/',
          workspace_collection,
          name='workspace_collection'),

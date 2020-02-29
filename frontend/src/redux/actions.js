@@ -40,6 +40,20 @@ export function addItemCollectionError (collectionId, item, error) {
   return { type: COLLECTION.ADD_ITEM_ERROR, payload: { collectionId, item, error } }
 }
 
+// UPDATE ITEM
+export function updateItemOfCollectionPending (collectionId, item) {
+  return { type: COLLECTION.UPDATE_ITEM_PENDING, payload: { collectionId, item } }
+}
+
+export function updateItemOfCollectionSuccess (collectionId, item) {
+  return { type: COLLECTION.UPDATE_ITEM_SUCCESS, payload: { collectionId, item } }
+}
+
+export function updateItemOfCollectionError (collectionId, item, error) {
+  return { type: COLLECTION.UPDATE_ITEM_ERROR, payload: { collectionId, item, error } }
+}
+
+
 // ShoppingList
 export function addItem (collection, item) {
   return { type: COLLECTION.ADD_ITEM, payload: { collection, item } }
@@ -83,7 +97,6 @@ export function fetchWorkspacesPending () {
 }
 
 export function fetchWorkspacesSuccess (workspaces) {
-  console.log(workspaces)
   return { type: WORKSPACE.FETCH_SUCCESS, payload: { workspaces } }
 }
 

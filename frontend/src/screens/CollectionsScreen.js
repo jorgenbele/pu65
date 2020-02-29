@@ -34,11 +34,7 @@ class CollectionsScreen extends React.Component {
   }
 
   render () {
-    const { collections, error, fetchState } = this.props
-    console.log(fetchState)
-    console.log(error)
-    console.log('==== COLLECTIONS ====')
-    console.log(collections)
+    const { collections, fetchState } = this.props
 
     const styles = StyleSheet.create({
       fab: {

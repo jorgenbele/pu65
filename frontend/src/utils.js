@@ -8,7 +8,7 @@ import { ListItem, Badge } from 'react-native-elements'
 import TouchableScale from 'react-native-touchable-scale'
 
 // ...
-import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH } from './constants/Urls'
+import { BASE_URL, LOGIN_PATH, WORKSPACES_PATH, COLLECTIONS_PATH, ITEMS_PATH } from './constants/Urls'
 
 import {
   authLoginSuccess, authLoginPending, authLoginError,
@@ -16,7 +16,8 @@ import {
   fetchWorkspacesSuccess, fetchWorkspacesPending, fetchWorkspacesError,
   fetchCollectionsSuccess, fetchCollectionsPending, fetchCollectionsError,
   createCollectionSuccess, createCollectionPending, createCollectionError,
-  addItemToCollectionSuccess, /* addItemToCollectionPending, */ addItemToCollectionError,
+  addItemToCollectionSuccess, addItemToCollectionPending, addItemToCollectionError,
+  updateItemOfCollectionSuccess, updateItemOfCollectionPending, updateItemOfCollectionError,
 
   removeItem
 } from './redux/actions'
@@ -220,12 +221,12 @@ export const fetchWorkspaces = () => {
       .then(jsonData => {
         console.log(jsonData)
 
-        // const data = jsonData.map(workspace => {
-        //   return { ...workspace, isOwner: (workspace.members[workspace.owner] === getState().auth.username) }
-        // })
         const data = jsonData.map(workspace => {
-          return { ...workspace, isOwner: true }
+          return { ...workspace, isOwner: (workspace.members[workspace.owner] === getState().auth.username) }
         })
+        // const data = jsonData.map(workspace => {
+        //   return { ...workspace, isOwner: true }
+        // })
         dispatch(fetchWorkspacesSuccess(data))
       })
       .catch(error => {
@@ -235,7 +236,8 @@ export const fetchWorkspaces = () => {
   }
 }
 
-export const createWorkspace = (newWorkspace) => {
+// TODO: fix this
+export const createWorkspace = (newWorkspace, responseCallback) => {
   return (dispatch, getState) => {
     dispatch(createWorkspacesPending(newWorkspace))
 
@@ -261,10 +263,12 @@ export const createWorkspace = (newWorkspace) => {
         const createdWorkspace = { ...jsonData, isOwner: true }
         dispatch(createWorkspacesSuccess(createdWorkspace))
         dispatch(fetchWorkspaces())
+        if (responseCallback) responseCallback({ wasSuccessful: true, workspace: createdWorkspace })
       })
       .catch(error => {
         console.log(error)
         dispatch(createWorkspacesError(newWorkspace, error))
+        if (responseCallback) responseCallback({ wasSuccessful: false, error: error })
       })
   }
 }
@@ -274,6 +278,7 @@ export const fetchCollections = () => {
     dispatch(fetchCollectionsPending())
 
     const url = BASE_URL + COLLECTIONS_PATH
+    console.log(url)
 
     console.log('FETCH COLLECTIONS TOKEN')
     console.log(authorizationToken(getState()))
@@ -355,18 +360,15 @@ export const createCollection = (workspaceId, collectionName) => {
 //    }
 //  }
 
-export const updateItemState = (collectionId, item) => {
+export const updateItemOfCollection = (collectionId, item) => {
   return (dispatch, getState) => {
-    console.log('updateItemState')
-    // dispatch(addItemToCollectionPending(collectionId))
+    dispatch(updateItemOfCollectionPending)
 
-    const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
-    console.log(url)
-
-    console.log(authorizationToken(getState()))
+    const url = BASE_URL + ITEMS_PATH + item.id + '/'
+    console.log('UPDATE ITEM STATE URL: ' + url)
 
     return fetch(url, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: new Headers({
         'Content-type': 'application/json',
         ...authorizationToken(getState())
@@ -374,22 +376,21 @@ export const updateItemState = (collectionId, item) => {
       body: JSON.stringify(item)
     }).then(data => data.json())
       .then(jsonData => {
-        console.log('ADDED ITEM')
+        console.log('PATCHED ITEM')
         console.log(jsonData)
-        dispatch(addItemToCollectionSuccess(collectionId, item))
+        dispatch(updateItemOfCollectionSuccess(collectionId, item))
       })
       .catch(error => {
-        console.log('ADDEERROR')
+        console.log('PATCH ERROR')
         console.log(error)
-        dispatch(addItemToCollectionError(collectionId, item, error))
+        dispatch(updateItemOfCollectionError(collectionId, item, error))
       })
   }
 }
 
 export const addItemToCollection = (collectionId, item) => {
   return (dispatch, getState) => {
-    console.log('addItemToCollection')
-    // dispatch(addItemToCollectionPending(collectionId))
+    dispatch(addItemToCollectionPending(collectionId))
 
     const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
     console.log(url)

@@ -11,7 +11,8 @@ import { NavigationContainer } from '@react-navigation/native'
 import SettingsScreen from './src/screens/SettingsScreen'
 import WorkspacesScreen from './src/screens/WorkspacesScreen'
 
-import MainStackNavigator from './src/navigation/MainStackNavigator'
+import CollectionsStackNavigator from './src/navigation/CollectionsStackNavigator'
+import WorkspacesStackNavigator from './src/navigation/WorkspacesStackNavigator'
 
 import { authLogin, makeIcon } from './src/utils'
 import store from './src/redux/store'
@@ -38,12 +39,12 @@ export default function App () {
           <BottomTab.Navigator shifting>
             <BottomTab.Screen
               name='Collections'
-              component={MainStackNavigator}
+              component={CollectionsStackNavigator}
               options={makeNavigationOptions('Collections', 'list', '#00796b')}
             />
             <BottomTab.Screen
               name='Workspaces'
-              component={WorkspacesScreen}
+              component={WorkspacesStackNavigator}
               options={makeNavigationOptions('Workspace', 'apps', '#6200ee')}
             />
             <BottomTab.Screen

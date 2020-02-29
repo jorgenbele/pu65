@@ -32,40 +32,56 @@ const initialState = {
   ]
 }
 
+const updateCollectionItemState = (state, collectionId, item) => {
+  let collectionIndex = null
+  let newItems = null
+  for (let i = 0; i < state.collections.length; i++) {
+    if (state.collections[i].id === collectionId) {
+      console.log('found collectoin at index ' + i)
+      collectionIndex = i
+
+      for (let j = 0; j < state.collections[collectionIndex]; j++) {
+        if (state.collections[collectionIndex].items[j] === item.id) {
+          newItems = immutableReplaceAtIndex(state.collections[i].items, j, item)
+        }
+      }
+      break
+    }
+  }
+
+  const newCollection = {
+    ...state.collections[collectionIndex],
+    items: newItems
+  }
+
+  return {
+    ...state,
+    collections: immutableReplaceAtIndex(state.collections, collectionIndex, newCollection)
+  }
+}
+
 export default function (state = initialState, action) {
   switch (action.type) {
     case COLLECTION.REMOVE_ITEM: {
       console.log('REMOVE ITEM')
       const { collectionId, item } = action.payload
 
-      let collectionIndex = null
-      let newItems = null
-      for (let i = 0; i < state.collections.length; i++) {
-        if (state.collections[i].id === collectionId) {
-          console.log('found collectoin at index ' + i)
-          collectionIndex = i
+      return updateCollectionItemState(state, collectionId, { ...item, state: STATE_BOUGHT })
+    }
 
-          for (let j = 0; j < state.collections[collectionIndex]; j++) {
-            if (state.collections[collectionIndex].items[j] === item.id) {
-              const newItem = { ...item, state: STATE_BOUGHT }
-              newItems = immutableReplaceAtIndex(state.collections[i].items, j, newItem)
-            }
-          }
-          // newItems = state.collections[i].items.filter(i => i.id !== item.id)
-          break
-        }
-      }
-      console.log('REMOVING/BYING ID', collectionId, item)
+    case COLLECTION.UPDATE_ITEM_PENDING: {
+      return state
+    }
 
-      const newCollection = {
-        ...state.collections[collectionIndex],
-        items: newItems
-      }
+    case COLLECTION.UPDATE_ITEM_SUCCESS: {
+      const { collectionId, item } = action.payload
+      return updateCollectionItemState(collectionId, { ...item })
+    }
 
-      return {
-        ...state,
-        collections: immutableReplaceAtIndex(state.collections, collectionIndex, newCollection)
-      }
+    // TODO
+    case COLLECTION.UPDATE_ITEM_ERROR: {
+      // const { error } = action.payload
+      return state
     }
 
     // TODO FIX

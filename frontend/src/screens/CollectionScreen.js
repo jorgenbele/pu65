@@ -9,7 +9,8 @@ import {
   makeCollectionItem,
   addItemToCollection,
   removeItemFromCollection,
-  fetchCollections
+  fetchCollections,
+  updateItemOfCollection
 } from '../utils'
 import { STATE_BOUGHT } from '../constants/ItemStates'
 
@@ -23,7 +24,6 @@ const CollectionScreen = props => {
     return <ActivityIndicator animating color='#FF0000' />
   }
   const collection = collectionArray[0]
-  console.log(collection)
   const { items } = collection
 
   const styles = StyleSheet.create({
@@ -35,7 +35,7 @@ const CollectionScreen = props => {
     }
   })
 
-  const { removeItemFromCollection, addItemToCollection } = props
+  const { updateItemOfCollection, addItemToCollection } = props
   return (
     <>
       <ScrollView>
@@ -48,7 +48,8 @@ const CollectionScreen = props => {
               onPress: e => console.log('ITEM PRESSED'),
               onLongPress: e => {
                 console.log('ITEM PRESSED LONG, DELETING')
-                removeItemFromCollection(collectionId, item)
+                updateItemOfCollection(collectionId, { ...item, state: STATE_BOUGHT })
+                // removeItemFromCollection(collectionId, item)
               }
             })
           })}
@@ -80,6 +81,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   addItemToCollection,
   removeItemFromCollection,
+  updateItemOfCollection,
   fetchCollections
 }
 

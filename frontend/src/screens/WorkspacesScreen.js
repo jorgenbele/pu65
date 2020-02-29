@@ -1,13 +1,10 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
-
 import PopupInfoBanner from '../components/PopupInfoBanner'
-
 import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
-
 import { connect } from 'react-redux'
-
 import { ScrollView } from 'react-native-gesture-handler'
+import { CommonActions } from '@react-navigation/native'
 
 import {
   fetchWorkspaces,
@@ -34,11 +31,8 @@ class WorkspacesScreen extends React.Component {
   }
 
   render () {
-    const { workspaces, error, fetchPending, fetchWorkspaces } = this.props
-    console.log(fetchPending)
-    console.log(fetchWorkspaces)
-    console.log(error)
-    console.log(workspaces)
+    const { workspaces, fetchPending } = this.props
+    const { navigation, createWorkspace } = this.props
 
     if (fetchPending) {
       return <ActivityIndicator animating color='#FF0000' />
@@ -53,29 +47,45 @@ class WorkspacesScreen extends React.Component {
       }
     })
 
-    console.log(this.props)
     const isWorkspaceOwner = workspace => workspace.isOwner
 
-    console.log(this.props.workspaces)
     const managingWorkspaces = this.props.workspaces.filter(isWorkspaceOwner)
     const joinedWorkspaces = this.props.workspaces.filter(
       w => !isWorkspaceOwner(w)
     )
 
-    const { createWorkspace } = this.props
+    // FIXME: we shouldn't use callbacks this way
+    const handleCreateNewWorkspace = () => {
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'CreateWorkspace',
+          params: {
+            testparam: 'test',
+            createNewWorkspace: (workspaceName, callback) => {
+              createWorkspace({ name: workspaceName }, callback)
+              navigation.pop()
+            }
+          }
+        })
+      )
+    }
 
     // const iconicon = makeIcon(true, 'list');
     return (
       <>
+        {
+        // <WorkspaceCreateForm
+        //   createNewWorkspace={(workspaceName, callback) => { createWorkspace({ name: workspaceName }, callback) }}
+        // />
+        }
+
         {workspaces.length <= 0 ? (
           // Display a banner when no workspaces are added
           <PopupInfoBanner
             visible
             message='You are currently without a workspace'
             confirmLabel='Add a workspace'
-            confirmAction={(ConnectedWorkspacesScreen) => {
-              this.state.workspaces.add(['test'])
-            }}
+            confirmAction={(ConnectedWorkspacesScreen) => { handleCreateNewWorkspace() }}
             ignoreLabel='Not now'
             icon='exclamation'
           />
@@ -116,8 +126,7 @@ class WorkspacesScreen extends React.Component {
           medium
           icon='plus'
           onPress={() => {
-            console.log('creating workspace!')
-            createWorkspace({ name: 'Test workspace' + workspaces.length })
+            handleCreateNewWorkspace()
           }} // FIXME: Add authentication/creation of workspace
         />
       </>
