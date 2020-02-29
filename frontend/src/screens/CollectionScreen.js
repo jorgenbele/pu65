@@ -12,7 +12,7 @@ import {
   fetchCollections,
   updateItemOfCollection
 } from '../utils'
-import { STATE_BOUGHT } from '../constants/ItemStates'
+import { STATE_BOUGHT, STATE_ADDED } from '../constants/ItemStates'
 
 const CollectionScreen = ({ navigation, collections, route, addItemToCollection, ...props }) => {
   const { collectionId } = route.params
@@ -44,6 +44,10 @@ const CollectionScreen = ({ navigation, collections, route, addItemToCollection,
     )
   }
 
+  const handleToggleItemState = (item) => {
+    updateItemOfCollection(collectionId, { ...item, state: item.state === STATE_BOUGHT ? STATE_ADDED : STATE_BOUGHT })
+  }
+
   const { updateItemOfCollection } = props
   return (
     <>
@@ -55,11 +59,7 @@ const CollectionScreen = ({ navigation, collections, route, addItemToCollection,
             return makeCollectionItem(item, {
               checkmark,
               onPress: e => console.log('ITEM PRESSED'),
-              onLongPress: e => {
-                console.log('ITEM PRESSED LONG, DELETING')
-                updateItemOfCollection(collectionId, { ...item, state: STATE_BOUGHT })
-                // removeItemFromCollection(collectionId, item)
-              }
+              onLongPress: e => handleToggleItemState(item)
             })
           })}
         </List.Section>

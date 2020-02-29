@@ -74,8 +74,9 @@ export default function (state = initialState, action) {
     }
 
     case COLLECTION.UPDATE_ITEM_SUCCESS: {
-      const { collectionId, item } = action.payload
-      return updateCollectionItemState(collectionId, { ...item })
+      // const { collectionId, item } = action.payload
+      // return updateCollectionItemState(collectionId, { ...item })
+      return { ...state }
     }
 
     // TODO

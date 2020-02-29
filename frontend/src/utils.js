@@ -374,6 +374,8 @@ export const updateItemOfCollection = (collectionId, item) => {
         console.log('PATCHED ITEM')
         console.log(jsonData)
         dispatch(updateItemOfCollectionSuccess(collectionId, item))
+
+        dispatch(fetchCollections())
       })
       .catch(error => {
         console.log('PATCH ERROR')
