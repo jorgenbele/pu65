@@ -68,7 +68,6 @@ const CollectionScreen = ({ navigation, collections, route, addItemToCollection,
           })}
         </List.Section>
 
-
         <List.Section>
           <List.Subheader>Bought items</List.Subheader>
           {boughtItems.map(item => {
