@@ -1,37 +1,16 @@
 import React, { useState } from 'react'
 import { View } from 'react-native'
-import { Headline, Button, TextInput, HelperText, ActivityIndicator, Snackbar } from 'react-native-paper'
+import { connect } from 'react-redux'
 
-export default function WorkspaceCreateForm ({ ...props }) {
+import { Headline, Button, TextInput, HelperText } from 'react-native-paper'
+
+import { createWorkspace } from '../utils'
+
+function WorkspaceCreateForm ({ navigation, route, createWorkspace, ...props }) {
   const [workspaceName, setWorkspaceName] = useState('')
-  const [createState, setCreateState] = useState({ pending: false, response: null })
-  // response is on the form: { wasSuccessful: <bool>, error: <error> (on error), workspace: <workspace> (on success) }
-
-  const [snackBarVisible, setSnackBarVisible] = useState(false)
-
-  const { route } = props
-  const { createNewWorkspace } = route.params
 
   const isValidWorkspaceName = () => {
     return workspaceName !== ''
-  }
-
-  if (createState.pending) {
-    return (
-      <View>
-        <ActivityIndicator animating color='#FF0000' />
-      </View>
-    )
-  } else if (createState.response) {
-    return (
-      <Snackbar
-        visible={snackBarVisible} // snackBarVisible is set when the createWorkspace promise is returned
-        onDismiss={() => setSnackBarVisible(false)}
-      >
-        {!createState.response.wasSuccessful ? 'Failed to create workspace ' + createState.response.error
-          : 'Created workspace ' + createState.response.workspace}
-      </Snackbar>
-    )
   }
 
   return (
@@ -55,14 +34,8 @@ export default function WorkspaceCreateForm ({ ...props }) {
       <Button
         mode='contained' onPress={() => {
           if (!isValidWorkspaceName) return
-
-          createNewWorkspace(workspaceName,
-            (response) => {
-              console.log('GOT CRETE WORKSPACE RESPONE ')
-              setSnackBarVisible(true)
-              setCreateState({ pending: false, response })
-            }
-          )
+          createWorkspace({ name: workspaceName })
+          navigation.pop()
         }}
       >
         Create workspace
@@ -70,3 +43,9 @@ export default function WorkspaceCreateForm ({ ...props }) {
     </View>
   )
 }
+
+const mapStateToProps = state => ({ })
+const mapDispatchToProps = { createWorkspace }
+
+const ConnectedWorkspacesCreateForm = connect(mapStateToProps, mapDispatchToProps)(WorkspaceCreateForm)
+export default ConnectedWorkspacesCreateForm

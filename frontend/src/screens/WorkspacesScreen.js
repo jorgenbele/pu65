@@ -54,18 +54,11 @@ class WorkspacesScreen extends React.Component {
       w => !isWorkspaceOwner(w)
     )
 
-    // FIXME: we shouldn't use callbacks this way
+    // TODO: use redux store to handle pending create
     const handleCreateNewWorkspace = () => {
       navigation.dispatch(
         CommonActions.navigate({
-          name: 'CreateWorkspace',
-          params: {
-            testparam: 'test',
-            createNewWorkspace: (workspaceName, callback) => {
-              createWorkspace({ name: workspaceName }, callback)
-              navigation.pop()
-            }
-          }
+          name: 'CreateWorkspace'
         })
       )
     }
