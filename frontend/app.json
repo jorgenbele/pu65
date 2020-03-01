@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "testing",
-    "slug": "testing",
-    "privacy": "public",
+    "name": "ShopStop",
+    "slug": "shopstop",
+    "privacy": "unlisted",
     "sdkVersion": "36.0.0",
     "platforms": [
       "ios",
@@ -25,6 +25,10 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+        "package": "no.cyg.shopstop",
+        "versionCode": 1
     }
   }
 }

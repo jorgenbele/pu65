@@ -1,4 +1,10 @@
 * README
+* Releases
+** Android
+Get the latest release [[https://drive.google.com/open?id=1uNPUIE5XjHD47W38s2xtfDjP51U3UchJ][here]]
+** iOS
+To be determined
 * Images
 [[./content/workspaces.png]]
 [[./content/lists.png]]
+
