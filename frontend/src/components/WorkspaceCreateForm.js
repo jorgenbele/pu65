@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { Headline, Button, TextInput, HelperText } from 'react-native-paper'
 
-import { createWorkspace } from '../utils'
+import { createWorkspace } from '../api'
 
 function WorkspaceCreateForm ({ navigation, route, createWorkspace, ...props }) {
   const [workspaceName, setWorkspaceName] = useState('')

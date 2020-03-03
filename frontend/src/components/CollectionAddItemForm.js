@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { Headline, Button, TextInput, HelperText } from 'react-native-paper'
 
-import { addItemToCollection } from '../utils'
+import { addItemToCollection } from '../api'
 import { STATE_ADDED } from '../constants/ItemStates'
 
 function CollectionAddItemForm ({ me, navigation, route, addItemToCollection, ...props }) {

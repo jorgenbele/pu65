@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { Headline, Button, TextInput, HelperText, List } from 'react-native-paper'
 
-import { createCollection } from '../utils'
+import { createCollection } from '../api'
 
 function CollectionCreateForm ({ me, navigation, route, createCollection, ...props }) {
   const [workspaceListExpanded, setWorkspaceListExpanded] = useState(true)

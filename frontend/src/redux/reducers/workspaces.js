@@ -1,71 +1,73 @@
 import { WORKSPACE } from '../actionTypes'
 
 const initialState = {
-  fetchPending: false,
-  createPending: [],
+  fetchPendingById: new Set(),
+  createPendingByName: new Set(),
   error: null,
 
-  workspaces: [
-    {
-      name: 'Kollektivet',
-      isOwner: true,
-      members: ['jbr'],
-      collections: ['Kollektivfest'],
-      id: 155
-    },
-    {
-      name: 'Hjemme',
-      isOwner: false,
-      members: ['jbr'],
-      collections: ['Hjemmefest'],
-      id: 1
-    },
-    {
-      name: 'Jobb',
-      isOwner: false,
-      members: ['jbr'],
-      collections: ['Jobbfest'],
-      id: 2
-    }
-  ]
+  workspacesById: {}
 }
 
 export default function (state = initialState, action) {
   switch (action.type) {
     case WORKSPACE.CREATE_PENDING: {
       const { workspaceName } = action.payload
-      return { ...state, createPending: [...state.createPending, workspaceName] }
+      const createPendingByName = new Set(state.createPendingByName)
+      createPendingByName.add(workspaceName)
+      return { ...state, createPendingByName }
     }
 
     case WORKSPACE.CREATE_SUCCESS: {
       const { createdWorkspace } = action.payload
+      const createPendingByName = new Set(state.createPendingByName)
+      createPendingByName.delete(createdWorkspace.name)
       return {
         ...state,
-        createPending: [...state.createPending.filter(w => w !== createdWorkspace.name)]
+        createPendingByName,
+        workspacesById: {
+          [createdWorkspace.id]: createdWorkspace
+        }
       }
     }
 
     case WORKSPACE.CREATE_ERROR: {
       const { failedWorkspaceName, error } = action.payload
+      const createPendingByName = new Set(state.createPendingByName)
+      createPendingByName.delete(failedWorkspaceName)
       return {
         ...state,
         error,
-        createPending: [...state.createPending.filter(w => w !== failedWorkspaceName)]
+        createPendingByName
       }
     }
 
     case WORKSPACE.FETCH_PENDING: {
-      return { ...state, fetchPending: true }
+      const { workspaceId } = action.payload
+      const fetchPendingIds = new Set(state.fetchPendingIds)
+      fetchPendingIds.add(workspaceId)
+      return { ...state, fetchPendingIds }
     }
 
     case WORKSPACE.FETCH_SUCCESS: {
-      const { workspaces } = action.payload
-      return { ...state, fetchPending: false, workspaces }
+      console.log(action.payload)
+      const { workspace } = action.payload
+      const fetchPendingIds = new Set(state.fetchPendingIds)
+      fetchPendingIds.delete(workspace.id)
+      return {
+        ...state,
+        fetchPendingIds,
+        workspacesById: {
+          ...state.workspaceById,
+          [workspace.id]: workspace
+        }
+      }
     }
 
     case WORKSPACE.FETCH_ERROR: {
-      const { error } = action.payload
-      return { ...state, fetchPending: false, error }
+      const { workspaceId, error } = action.payload
+      const fetchPendingIds = new Set(state.fetchPendingIds)
+      fetchPendingIds.delete(workspaceId)
+      return { ...state, error, fetchPendingIds }
     }
 
     default:

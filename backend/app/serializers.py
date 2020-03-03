@@ -37,15 +37,27 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
 
+    collections = serializers.SerializerMethodField()
     workspaces = serializers.SerializerMethodField()
 
     # get a dict {member_pk: member_username, ...}
     def get_workspaces(self, member):
         return {w.pk: w.name for w in member.part_of_workspaces.all()}
 
+    # get a dict {member_pk: member_username, ...}
+    def get_collections(self, member):
+        # TODO: Must be changed when supporting
+        # private lists and such
+        collections = Collection.objects.filter(
+            workspace__members__id__exact=member.id)
+        d = {}
+        for c in collections:
+            d[c.id] = c.name
+        return d
+
     class Meta:
         model = Member
-        fields = ['id', 'username', 'workspaces']
+        fields = ['id', 'username', 'workspaces', 'collections']
 
 
 class CollectionItemSerializer(serializers.ModelSerializer):

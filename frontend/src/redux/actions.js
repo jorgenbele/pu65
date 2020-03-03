@@ -1,22 +1,19 @@
 import { AUTH, COLLECTION, WORKSPACE, MEMBERS } from './actionTypes'
 
-// Collection
-// FETCH
-export function fetchCollectionsPending () {
-  return { type: COLLECTION.FETCH_ALL_PENDING }
+export function fetchCollectionPending (collectionId) {
+  return { type: COLLECTION.FETCH_PENDING, payload: { collectionId } }
 }
 
-export function fetchCollectionsSuccess (collections) {
-  return { type: COLLECTION.FETCH_ALL_SUCCESS, payload: { collections } }
+export function fetchCollectionSuccess (collection) {
+  return { type: COLLECTION.FETCH_SUCCESS, payload: { collection } }
 }
 
-export function fetchCollectionsError (error) {
-  return { type: COLLECTION.FETCH_ALL_ERROR, payload: { error } }
+export function fetchCollectionError (collectionId, error) {
+  return { type: COLLECTION.FETCH_ERROR, payload: { collectionId, error } }
 }
 
-// CREATEfetchCollectionsError
 export function createCollectionPending (workspaceId, collectionName) {
-  return { type: COLLECTION.CREATE_PENDING }
+  return { type: COLLECTION.CREATE_PENDING, payload: { workspaceId, collectionName } }
 }
 
 export function createCollectionSuccess (collection) {
@@ -27,7 +24,6 @@ export function createCollectionError (workspaceId, collectionName, error) {
   return { type: COLLECTION.CREATE_ERROR, payload: { workspaceId, collectionName, error } }
 }
 
-// ADD ITEM
 export function addItemToCollectionPending (collectionId, item) {
   return { type: COLLECTION.ADD_ITEM_PENDING, payload: { collectionId, item } }
 }
@@ -40,7 +36,6 @@ export function addItemCollectionError (collectionId, item, error) {
   return { type: COLLECTION.ADD_ITEM_ERROR, payload: { collectionId, item, error } }
 }
 
-// UPDATE ITEM
 export function updateItemOfCollectionPending (collectionId, item) {
   return { type: COLLECTION.UPDATE_ITEM_PENDING, payload: { collectionId, item } }
 }
@@ -53,23 +48,6 @@ export function updateItemOfCollectionError (collectionId, item, error) {
   return { type: COLLECTION.UPDATE_ITEM_ERROR, payload: { collectionId, item, error } }
 }
 
-// ShoppingList
-export function addItem (collection, item) {
-  return { type: COLLECTION.ADD_ITEM, payload: { collection, item } }
-}
-
-export function removeItem (collectionId, item) {
-  return { type: COLLECTION.REMOVE_ITEM, payload: { collectionId, item } }
-}
-
-export function renameItem (collection, item, newTitle) {
-  return { type: COLLECTION.RENAME, payload: { title: newTitle } }
-}
-
-export function toggleItemState (collection, item) {
-  return { type: COLLECTION.TOGGLE_STATE, payload: { item } }
-}
-
 export function createCollection (collection) {
   return { type: COLLECTION.CREATE, payload: { collection } }
 }
@@ -78,29 +56,28 @@ export function deleteCollection (collection) {
   return { type: COLLECTION.DELETE, payload: { collection } }
 }
 
-// Workspace
-export function createWorkspacesPending (workspaceName) {
+export function createWorkspacePending (workspaceName) {
   return { type: WORKSPACE.CREATE_PENDING, payload: { workspaceName } }
 }
 
-export function createWorkspacesSuccess (createdWorkspace) {
+export function createWorkspaceSuccess (createdWorkspace) {
   return { type: WORKSPACE.CREATE_SUCCESS, payload: { createdWorkspace } }
 }
 
-export function createWorkspacesError (failedWorkspaceName, error) {
+export function createWorkspaceError (failedWorkspaceName, error) {
   return { type: WORKSPACE.CREATE_ERROR, payload: { failedWorkspaceName, error } }
 }
 
-export function fetchWorkspacesPending () {
+export function fetchWorkspacePending (workspaceId) {
   return { type: WORKSPACE.FETCH_PENDING }
 }
 
-export function fetchWorkspacesSuccess (workspaces) {
-  return { type: WORKSPACE.FETCH_SUCCESS, payload: { workspaces } }
+export function fetchWorkspaceSuccess (workspace) {
+  return { type: WORKSPACE.FETCH_SUCCESS, payload: { workspace } }
 }
 
-export function fetchWorkspacesError (error) {
-  return { type: WORKSPACE.FETCH_ERROR, payload: { error } }
+export function fetchWorkspaceError (workspaceId, error) {
+  return { type: WORKSPACE.FETCH_ERROR, payload: { workspaceId, error } }
 }
 
 // Auth
@@ -119,18 +96,27 @@ export function authLoginError (error) {
 export function authLogout (token) {
   return { type: AUTH.LOG_OUT, payload: { token } }
 }
-// export function authCreate(username, password) {
-//    return { type: AUTH.CREATE, payload: { username, password } }
-// }
 
-export function fetchMemberPending () {
-  return { type: MEMBERS.FETCH_PENDING }
+export function fetchMemberPending (username) {
+  return { type: MEMBERS.FETCH_PENDING, payload: { username } }
 }
 
-export function fetchMemberSuccess (id, username, workspaces) {
-  return { type: MEMBERS.FETCH_SUCCESS, payload: { id, username, workspaces } }
+export function fetchMemberSuccess (id, username, workspaces, collections) {
+  return { type: MEMBERS.FETCH_SUCCESS, payload: { id, username, workspaces, collections } }
 }
 
-export function fetchMemberError (error) {
-  return { type: MEMBERS.FETCH_ERROR, payload: { error } }
+export function fetchMemberError (username, error) {
+  return { type: MEMBERS.FETCH_ERROR, payload: { username, error } }
+}
+
+// update the state of the members.workspacesById field with
+// the given workspace
+export function addMemberWorkspacesState (username, workspace) {
+  return { type: MEMBERS.ADD_MEMBER_WORKSPACE, payload: { username, workspace } }
+}
+
+// update the state of the members.workspacesById field with
+// the given collection
+export function addMemberCollectionsState (username, collection) {
+  return { type: MEMBERS.ADD_MEMBER_COLLECTION, payload: { username, collection } }
 }

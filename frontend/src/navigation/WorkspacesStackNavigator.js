@@ -6,7 +6,7 @@ import WorkspaceCreateForm from '../components/WorkspaceCreateForm'
 
 const Stack = createStackNavigator()
 
-function MainStackNavigator () {
+function WorkspacesStackNavigator () {
   return (
     <Stack.Navigator initialRouteName='Workspaces'>
       <Stack.Screen name='Workspaces' component={WorkspacesScreen} />
@@ -15,4 +15,4 @@ function MainStackNavigator () {
   )
 }
 
-export default MainStackNavigator
+export default WorkspacesStackNavigator

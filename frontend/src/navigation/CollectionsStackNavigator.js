@@ -7,8 +7,7 @@ import CollectionCreateForm from '../components/CollectionCreateForm'
 import CollectionAddItemForm from '../components/CollectionAddItemForm'
 
 const Stack = createStackNavigator()
-
-function MainStackNavigator () {
+function CollectionsStackNavigator () {
   return (
     <Stack.Navigator initialRouteName='Collections'>
       <Stack.Screen name='Collections' component={CollectionsScreen} />
@@ -19,4 +18,4 @@ function MainStackNavigator () {
   )
 }
 
-export default MainStackNavigator
+export default CollectionsStackNavigator

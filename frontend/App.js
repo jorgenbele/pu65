@@ -13,13 +13,13 @@ import SettingsScreen from './src/screens/SettingsScreen'
 import CollectionsStackNavigator from './src/navigation/CollectionsStackNavigator'
 import WorkspacesStackNavigator from './src/navigation/WorkspacesStackNavigator'
 
-import { authLogin, makeIcon, fetchMember } from './src/utils'
+import { authLogin } from './src/api'
+import { makeIcon } from './src/utils'
 import store from './src/redux/store'
 import SECRETS from './src/secrets'
 
 const login = () => {
   store.dispatch(authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD))
-  store.dispatch(fetchMember(SECRETS.USER_NAME))
 }
 
 const BottomTab = createMaterialBottomTabNavigator()
@@ -36,7 +36,7 @@ export default function App () {
         <StatusBar hidden />
 
         <NavigationContainer>
-          <BottomTab.Navigator shifting>
+          <BottomTab.Navigator shifting initialRouteName='Workspaces'>
             <BottomTab.Screen
               name='Collections'
               component={CollectionsStackNavigator}
