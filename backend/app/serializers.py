@@ -107,7 +107,6 @@ class WorkspaceAsJSONField(Field):
         except (TypeError, ValueError):
             self.fail('invalid')
 
-        print('INTERNAL VALUD', data)
         try:
             workspace = Workspace.objects.get_or_create(**data)[0]
             return workspace

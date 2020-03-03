@@ -29,8 +29,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 #router.register(r'members', MembersViewSet)
-router.register(r'workspaces', WorkspacesViewSet)
-router.register(r'collections', CollectionsViewSet)
+router.register(r'workspaces', WorkspacesViewSet, basename='workspaces')
+router.register(r'collections', CollectionsViewSet, basename='collections')
 #router.register(r'items', CollectionsItemViewSet)
 
 urlpatterns = [
@@ -39,12 +39,15 @@ urlpatterns = [
     path(r'collections/<int:pk>/item/',
          collection_item,
          name='collections_item'),
-    path(r'items/<int:pk>/', CollectionItemDetail.as_view()),
-    path(r'members/<str:username>/', MemberDetail.as_view()),
+    path(r'items/<int:pk>/', CollectionItemDetail.as_view(),
+         name='item_by_id'),
+    path(r'members/<str:username>/',
+         MemberDetail.as_view(),
+         name='member_detail'),
     path(r'workspaces/<int:pk>/collection/',
          workspace_collection,
          name='workspace_collection'),
-    path('api-token-auth/', obtain_auth_token),
+    path('api-token-auth/', obtain_auth_token, name='auth_token'),
     path('api-auth/', include('rest_framework.urls',
                               namespace='rest_framework'))
 ]

@@ -14,8 +14,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
-from .permissions import IsCollectionItemWorkspaceMember, IsCollectionWorkspaceMember
-from .permissions import IsWorkspaceMember
+from .permissions import IsCollectionItemWorkspaceMember
+from .permissions import IsCollectionWorkspaceMember
+from .permissions import IsItemCollectionWorkspaceMember
+#from .permissions import IsWorkspaceMember
+from .permissions import IsCurrentMember
 
 
 class MembersViewSet(viewsets.ModelViewSet):
@@ -27,9 +30,8 @@ class WorkspacesViewSet(viewsets.ModelViewSet):
     queryset = Workspace.objects.all()
     serializer_class = WorkspaceSerializer
 
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly
-    ]
+    # FIXME
+    # permission_classes = (IsWorkspaceMember,)
 
     def perform_create(self, serializer):
         serializer.save(owner=Member.objects.get(id=self.request.user.id))
@@ -94,7 +96,7 @@ def workspace_collection(request, pk):
     'PUT',
     'DELETE',
 ])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsCollectionItemWorkspaceMember])
 def collection_item(request, pk):
     try:
         member = Member.objects.get(pk=request.user.pk)
@@ -126,50 +128,22 @@ def collection_item(request, pk):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-#class CollectionItemDetail(APIView):
-#    def get_object(self, pk):
-#        try:
-#            return CollectionItem.objects.get(pk=pk)
-#        except CollectionItem.DoesNotExist:
-#            raise Http404
-#
-#    def get(self, request, pk, format=None):
-#        item = self.get_object(pk)
-#        serializer = CollectionItemSerializer(item)
-#        return Response(serializer.data)
-#
-#    def put(self, request, pk, format=None):
-#        item = self.get_object(pk)
-#        serializer = ItemSerializer(item, data=request.data)
-#        if serializer.is_valid():
-#            serializer.save()
-#            return Response(serializer.data)
-#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#    def delete(self, request, pk, format=None):
-#        item = self.get_object(pk)
-#        item.delete()
-#        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class CollectionItemDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = CollectionItem.objects.all()
     serializer_class = CollectionItemSerializer
-    permission_classes = (IsCollectionItemWorkspaceMember, )
+    permission_classes = (IsItemCollectionWorkspaceMember, )
 
 
 class MemberDetail(generics.RetrieveAPIView):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
-    permission_classes = (IsWorkspaceMember, )
+    permission_classes = (IsCurrentMember, )
 
     def get_object(self):
         queryset = self.get_queryset()
         filter = {}
         for field in ['username']:
             filter[field] = self.kwargs[field]
-
-        print('MEMBER DETAIL', filter)
 
         obj = get_object_or_404(queryset, **filter)
         self.check_object_permissions(self.request, obj)
