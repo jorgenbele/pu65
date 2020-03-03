@@ -78,6 +78,14 @@ class IsCollectionWorkspaceMember(permissions.DjangoObjectPermissions):
             member = Member.objects.get(id=request.user.id)
         except Member.DoesNotExist:
             return False
+
+        if request.method in permissions.SAFE_METHODS:
+            try:
+                collection = Collection.objects.get(pk=view.kwargs['pk'])
+            except Collection.DoesNotExist:
+                return False
+            return collection.workspace.members.filter(id=member.id).exists()
+
         # request.data is expected to be
         # { "name": <collection name>, "workspace": { "name": <workspace_name> } }
         # That is, the data used to describe a new collection to
