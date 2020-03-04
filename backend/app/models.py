@@ -48,15 +48,38 @@ class Collection(models.Model):
                                   on_delete=models.CASCADE)
     created_by = models.ForeignKey(Member, on_delete=models.PROTECT)
     name = models.TextField('name', max_length=128)
+    members = models.ManyToManyField(Member, related_name='joined_collections')
 
-    def clean(self):
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Make sure the owner is always in members
+        if not self.members.filter(pk=self.created_by.pk).exists():
+            self.members.add(self.created_by)
+
+        # FIXME: this doesn't really work atm
+
         # make sure that all WorkspaceMembers are members of the workspace
         # that the collection this item belongs.
         w = self.workspace
-        if w not in self.created_by.workspaces:
+        if not self.created_by.part_of_workspaces.filter(
+                id=self.workspace.id).exists():
             raise ValidationError(
                 gettext_lazy(
                     'Collection must be created by a workspace member'))
+
+        #if not self.created_by.joined_collections.filter(id=self.workspace.id).exists():
+        #print(self.created_by.part_of_workspaces)
+        #print(self.created_by.joined_collections)
+        #raise ValidationError(
+        #    gettext_lazy(
+        #        'Collection creator must have joined the collection'))
+
+        if not self.members.filter(
+                part_of_workspaces__id=self.workspace.id).exists():
+            raise ValidationError(
+                gettext_lazy(
+                    'Collection members must be member of the workspace'))
 
     class Meta:
         # Collection names must be unique for a collection

@@ -145,7 +145,11 @@ class MemberTestCase(TestCase):
 
         for c in self.collections3:
             self.assertTrue(c.name in i1['collections'])
-            self.assertTrue(c.name in i2['collections'])
+            self.assertFalse(
+                c.name in i2['collections'])  # Has not joined the collection
+            self.assertTrue(
+                c.name in
+                i2['all_collections'])  # Has not joined the collection
 
     def test_correct_workspaces_dict(self):
         i1, i2 = self.i1, self.i2
@@ -287,8 +291,8 @@ class WorkspacesTestCase(TestCase):
                         self.tokens[1],
                         item_name='testiitem2'))
 
-    def test_only_workspace_member_can_update_collection_item(self):
-        # We only want workspace members to be able to add items
+    def test_only_collection_members_can_update_collection_item(self):
+        # We only want collection members to be able to add items
         # This test makes sure that is the case
 
         collections_items = []
@@ -335,6 +339,13 @@ class WorkspacesTestCase(TestCase):
         # Both should be able to update items for collection 9
         self.assertTrue(update_item_ok(collections_items[2][0],
                                        self.tokens[0]))
+        # but member2 has not joined the collection yet, so it will fail
+        # this
+        self.assertFalse(
+            update_item_ok(collections_items[2][0], self.tokens[1]))
+        # join the collection
+        self.members[1].joined_collections.add(self.collections[2][0])
+        # but it will now work since it is part of the collection
         self.assertTrue(update_item_ok(collections_items[2][0],
                                        self.tokens[1]))
 
@@ -348,3 +359,164 @@ class WorkspacesTestCase(TestCase):
 
         workspace = Workspace.objects.get(name='testworkspace_new')
         self.assertEqual(workspace.name, 'testworkspace_new')
+
+
+class CollectionsTestCaseSetup(TestCase):
+    def setUp(self):
+        # create two members each belonging to different
+        # workspaces, make sure we only get the correct
+        # members workspace and corresponding collections
+        userpasses = [('u1', 'testpass1'), ('u2', 'testpass2')]
+        self.members, self.tokens = zip(
+            *list(map(lambda up: create_and_login(*up), userpasses)))
+
+        workspacenames = ['w1', 'w2']
+        self.workspaces = list(
+            map(lambda mn: Workspace.objects.create(name=mn[1], owner=mn[0]),
+                zip(self.members, workspacenames)))
+        self.w = self.workspaces[0]
+        self.w2 = self.workspaces[0]
+        list(map(lambda m: m.part_of_workspaces.add(self.w.pk), self.members))
+
+        collectionnames = ['c1', 'c2']
+        self.collections = list(
+            map(
+                lambda mn: Collection.objects.create(
+                    name=mn[1], created_by=mn[0], workspace=self.w),
+                zip(self.members, collectionnames)))
+
+
+class CollectionsInviteTestCase(CollectionsTestCaseSetup):
+    def test_invite_to_collection(self):
+        self.assertTrue(
+            self.members[0].joined_collections.filter(name='c1').exists())
+        self.assertTrue(
+            self.members[1].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[0].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[1].joined_collections.filter(name='c1').exists())
+
+        def invite_to_collection_ok(member, token, collection):
+            r = self.client.post(reverse('collections_invite',
+                                         args=[collection.pk,
+                                               member.username]),
+                                 HTTP_AUTHORIZATION='Token ' + token,
+                                 format='json')
+            return r.status_code == 201
+
+        # Invites to a collection the member is already a part of will fail,
+        # but the others will not
+        self.assertFalse(
+            invite_to_collection_ok(self.members[0], self.tokens[0],
+                                    self.collections[0]))  # already joined
+        self.assertTrue(
+            invite_to_collection_ok(self.members[1], self.tokens[0],
+                                    self.collections[0]))
+
+        self.assertFalse(
+            invite_to_collection_ok(self.members[1], self.tokens[1],
+                                    self.collections[1]))  # already joined
+        self.assertTrue(
+            invite_to_collection_ok(self.members[0], self.tokens[1],
+                                    self.collections[1]))
+
+
+# FIXME: Make tests for making sure members can only invite if they are part of the collection
+# and the workspace
+
+
+class CollectionsLeaveTestCase(CollectionsTestCaseSetup):
+    def test_leave_collection(self):
+        self.assertTrue(
+            self.members[0].joined_collections.filter(name='c1').exists())
+        self.assertTrue(
+            self.members[1].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[0].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[1].joined_collections.filter(name='c1').exists())
+
+        def leave_collection_ok(token, collection):
+            r = self.client.post(reverse('collections_leave',
+                                         args=[collection.pk]),
+                                 HTTP_AUTHORIZATION='Token ' + token,
+                                 format='json')
+            return r.status_code == 201
+
+        self.assertTrue(
+            leave_collection_ok(
+                self.tokens[0],
+                self.collections[0]))  # Will work the first time
+        self.assertFalse(
+            leave_collection_ok(
+                self.tokens[0],
+                self.collections[0]))  # but now we left, so it wont work
+        self.assertFalse(
+            leave_collection_ok(
+                self.tokens[0],
+                self.collections[1]))  # leaving one we never were a part of
+
+        self.assertTrue(
+            leave_collection_ok(self.tokens[1], self.collections[1]))
+        self.assertFalse(
+            leave_collection_ok(self.tokens[1], self.collections[1]))
+        self.assertFalse(
+            leave_collection_ok(self.tokens[1], self.collections[0]))
+
+
+class CollectionsJoinTestCase(CollectionsTestCaseSetup):
+    def test_join_collection(self):
+        self.assertTrue(
+            self.members[0].joined_collections.filter(name='c1').exists())
+        self.assertTrue(
+            self.members[1].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[0].joined_collections.filter(name='c2').exists())
+        self.assertFalse(
+            self.members[1].joined_collections.filter(name='c1').exists())
+
+        def join_collection_ok(token, collection):
+            r = self.client.post(reverse('collections_join',
+                                         args=[collection.pk]),
+                                 HTTP_AUTHORIZATION='Token ' + token,
+                                 format='json')
+            return r.status_code == 201
+
+        self.assertFalse(
+            join_collection_ok(self.tokens[0], self.collections[0]))
+        self.assertTrue(join_collection_ok(self.tokens[0],
+                                           self.collections[1]))
+        self.assertFalse(
+            join_collection_ok(self.tokens[0], self.collections[1]))
+
+        self.assertFalse(
+            join_collection_ok(self.tokens[1], self.collections[1]))
+        self.assertTrue(join_collection_ok(self.tokens[1],
+                                           self.collections[0]))
+        self.assertFalse(
+            join_collection_ok(self.tokens[1], self.collections[0]))
+
+
+class LoginLogoutTestCase(TestCase):
+    def setUp(self):
+        self.member, self.token = create_and_login('testuser1', 'testpassword')
+
+    def test_logout(self):
+        def get_member_ok():
+            r = self.client.get(reverse('member_detail',
+                                        args=[self.member.username]),
+                                HTTP_AUTHORIZATION='Token ' + self.token,
+                                format='json')
+            return r.status_code == 200
+
+        def logout_ok():
+            r = self.client.post(reverse('logout'),
+                                 HTTP_AUTHORIZATION='Token ' + self.token,
+                                 format='json')
+            return r.status_code == 200
+
+        self.assertTrue(get_member_ok())  # is logged in, this will work
+        self.assertTrue(logout_ok())  # is logged in, will work
+        self.assertFalse(get_member_ok())  # is not logged in, won't work
+        self.assertFalse(logout_ok())  # won't work, is logged out already

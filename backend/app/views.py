@@ -15,10 +15,14 @@ from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .permissions import IsCollectionItemWorkspaceMember
+from .permissions import IsCollectionItemMember
 from .permissions import IsCollectionWorkspaceMember
+from .permissions import IsCollectionMember
 from .permissions import IsItemCollectionWorkspaceMember
+from .permissions import IsItemCollectionMember
 #from .permissions import IsWorkspaceMember
 from .permissions import IsCurrentMember
+from .permissions import IsWorkspaceOwner
 
 
 class MembersViewSet(viewsets.ModelViewSet):
@@ -42,7 +46,7 @@ class WorkspacesViewSet(viewsets.ModelViewSet):
 class CollectionsViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
-    permission_classes = (IsCollectionWorkspaceMember, )
+    permission_classes = (IsCollectionWorkspaceMember, IsCollectionMember)
 
     def perform_create(self, serializer):
         serializer.save(created_by=Member.objects.get(id=self.request.user.id))
@@ -128,10 +132,74 @@ def collection_item(request, pk):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsCollectionItemWorkspaceMember])
+def collection_join(request, pk):
+    try:
+        member = Member.objects.get(pk=request.user.pk)
+        if request.method == 'POST':
+            if member.joined_collections.filter(pk=pk).exists():
+                return Response(data={
+                    'failure':
+                    'member has already joined the collection'
+                },
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            member.joined_collections.add(pk)
+
+            serializer = MemberSerializer(member)
+
+            data = {
+                'success': f'joined collection {pk}',
+                'member': serializer.data
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsCollectionItemWorkspaceMember])
+def collection_leave(request, pk):
+    try:
+        member = Member.objects.get(pk=request.user.pk)
+        if request.method == 'POST':
+            if not member.joined_collections.filter(pk=pk).exists():
+                return Response(
+                    data={'failure': 'member has not joined the collection'},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+            member.joined_collections.remove(pk)
+
+            collection = Collection.objects.get(pk=pk)
+            serializer = MemberSerializer(member)
+
+            data = {
+                'success': f'left collection {pk}',
+                'member': serializer.data
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
 class CollectionItemDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = CollectionItem.objects.all()
     serializer_class = CollectionItemSerializer
-    permission_classes = (IsItemCollectionWorkspaceMember, )
+    permission_classes = (IsItemCollectionWorkspaceMember,
+                          IsItemCollectionMember)
 
 
 class MemberDetail(generics.RetrieveAPIView):
@@ -148,3 +216,54 @@ class MemberDetail(generics.RetrieveAPIView):
         obj = get_object_or_404(queryset, **filter)
         self.check_object_permissions(self.request, obj)
         return obj
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    request.user.auth_token.delete()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsCollectionMember])
+def collection_invite(request, pk, username):
+    try:
+        member = Member.objects.get(username=username)
+        collection = Collection.objects.get(pk=pk)
+
+        if request.method == 'POST':
+            if member.joined_collections.filter(pk=pk).exists():
+                return Response(data={
+                    'failure':
+                    'member is already a member of the collection'
+                },
+                                status=status.HTTP_400_BAD_REQUEST)
+            if not member.part_of_workspaces.filter(
+                    id=collection.workspace.id).exists():
+                return Response(
+                    data={'failure': 'member must be part of the workspace'},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+            member.joined_collections.add(pk)
+
+            data = {'success': f'invited user {username} to collection {pk}'}
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsWorkspaceOwner])
+def workspace_create_join_code(request, pk, username):
+    # TODO
+    pass
