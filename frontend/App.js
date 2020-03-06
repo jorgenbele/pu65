@@ -17,6 +17,7 @@ import { authLogin } from './src/api'
 import { makeIcon } from './src/utils'
 import store from './src/redux/store'
 import SECRETS from './src/secrets'
+import Login from './src/components/LoginForm'
 
 const login = () => {
   store.dispatch(authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD))
@@ -49,7 +50,7 @@ export default function App () {
             />
             <BottomTab.Screen
               name='Settings'
-              component={SettingsScreen}
+              component={Login}
               options={makeNavigationOptions('Settings', 'settings', '#FFFFFF')}
             />
           </BottomTab.Navigator>
