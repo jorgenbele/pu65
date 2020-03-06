@@ -1,7 +1,7 @@
 /* global fetch:false Headers:false */
 
 import {
-  BASE_URL, LOGIN_PATH, WORKSPACES_PATH,
+  BASE_URL, LOGIN_PATH, LOGOUT_PATH, WORKSPACES_PATH,
   COLLECTIONS_PATH, ITEMS_PATH, MEMBERS_PATH
 } from './constants/Urls'
 
@@ -18,44 +18,11 @@ import {
   addItemToCollectionSuccess, addItemToCollectionPending, addItemToCollectionError,
   updateItemOfCollectionSuccess, updateItemOfCollectionPending, updateItemOfCollectionError,
 
-  fetchMemberSuccess, fetchMemberPending, fetchMemberError
+  fetchMemberSuccess, fetchMemberPending, fetchMemberError, authLogoutPending,
+
+  authLogoutSuccess, authLogoutError
 } from './redux/actions'
-
-// authLogin is a redux-thunk action function that will
-// authenticate as a user given the username and password
-// of said account. It will update the redux store, and
-// must be mapped to dispatch, using mapToDispatch, or
-// by calling dispatch(authLogin(username, password))
-// directly
-export function authLogin (username, password) {
-  console.log('AUTH LOGIN')
-
-  return (dispatch, getState) => {
-    console.log('AUTH LOGIN DISPATCH')
-    const url = BASE_URL + LOGIN_PATH
-    const body = JSON.stringify({
-      username,
-      password
-    })
-
-    dispatch(authLoginPending())
-    fetch(url, {
-      method: 'POST',
-      headers: new Headers({ 'Content-type': 'application/json' }),
-      body
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(authLoginSuccess(username, jsonData.token))
-
-        // FIXME: should probably not be here, this fetches the member
-        dispatch(fetchMember(username))
-      })
-      .catch(error => {
-        dispatch(authLoginError(error))
-        console.error(error)
-      })
-  }
-}
+import { RESET_TO_INITIAL_STATE } from './redux/actionTypes'
 
 // authorizationToken is a helper function to
 // return a authrozation token used in requests
@@ -65,36 +32,109 @@ export const authorizationToken = (state) => {
   return { Authorization: 'Token ' + state.auth.token }
 }
 
+// headersFromOptions is a helper function to extract
+// the headers field from an option dict, or just
+// use Content-Type Json with authentication token
+const headersFromOptions = (getState, options) => {
+  if (options && options.headers) {
+    return options.headers
+  }
+  return new Headers({
+    'Content-type': 'application/json',
+    ...authorizationToken(getState())
+  })
+}
+
+// apiCall is a wrapper function for fetch, don't use this directly
+// instead use one of apiPost, apiGet, apiPatch, etc.
+const apiCall = (endpoints, method, pending, success, error, options) => {
+  let url = BASE_URL + endpoints.join('/')
+  if (!url.endsWith('/')) url = url + '/'
+
+  return (dispatch, getState) => {
+    pending(dispatch, getState)
+    fetch(url, {
+      method, headers: headersFromOptions(getState, options), body: options && options.body
+    })
+      .then(data => data.json())
+      .then(jsonData => { success(dispatch, getState, jsonData) })
+      .catch(errorData => error(dispatch, getState, errorData))
+  }
+}
+
+const apiPost = (endpoints, pending, success, error, options) => {
+  return apiCall(endpoints, 'POST', pending, success, error, options)
+}
+
+const apiGet = (endpoints, pending, success, error, options) => {
+  return apiCall(endpoints, 'GET', pending, success, error, options)
+}
+
+const apiPatch = (endpoints, pending, success, error, options) => {
+  return apiCall(endpoints, 'PATCH', pending, success, error, options)
+}
+
+const apiPut = (endpoints, pending, success, error, options) => {
+  return apiCall(endpoints, 'PUT', pending, success, error, options)
+}
+
+// withDispatch returns a function that takes (dispatch, getState, data)
+// and calls dispatch on the callback with data as the first parameter
+// and getState as the second, to the callback function.
+const withDispatch = (callback) => {
+  return (dispatch, getState, data) => dispatch(callback(data, getState))
+}
+
+// authLogin is a redux-thunk action function that will
+// authenticate as a user given the username and password
+// of said account. It will update the redux store, and
+// must be mapped to dispatch, using mapToDispatch, or
+// by calling dispatch(authLogin(username, password))
+// directly
+export function authLogin (username, password) {
+  console.log('AUTH LOGIN')
+  return apiPost([LOGIN_PATH],
+    withDispatch(authLoginPending),
+    (dispatch, getState, data) => {
+      console.log('AUTH LOGIN SUCCESSFUL', data.token)
+      dispatch(authLoginSuccess(username, data.token))
+    },
+    withDispatch(authLoginError),
+    {
+      body: JSON.stringify({ username, password }),
+      headers: { 'Content-Type': 'application/json' }
+    }
+  )
+}
+
+// authLogout is similar to authLogin but logs out the user
+// instead of logging in. NOTE: the token provided is
+// the one that is invalidated, so be sure to pass the
+// correct one.
+export function authLogout (token) {
+  return apiPost([LOGOUT_PATH],
+    withDispatch(authLogoutPending.bind(null, token)),
+    // withDispatch(authLogoutSuccess.bind(null, token)),
+    (dispatch, getState, data) => {
+      console.log('AUTH LOGOUT SUCCESSFUL', token)
+      dispatch(authLogoutSuccess(token))
+      dispatch({ type: RESET_TO_INITIAL_STATE })
+    },
+    withDispatch(authLogoutError),
+    { headers: { Authorization: 'Token ' + token } })
+}
+
 // fetchWorkspace is similar to authLogin, but takes
 // a workspaceId and will update the redux store
 // with the given workspace.
 export const fetchWorkspace = (workspaceId) => {
-  return (dispatch, getState) => {
-    dispatch(fetchWorkspacePending(workspaceId))
-
-    const url = BASE_URL + WORKSPACES_PATH + workspaceId
-
-    return fetch(url, {
-      method: 'GET',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      })
-    }).then(data => data.json())
-      .then(jsonData => {
-        const data = jsonData.map(workspace => {
-          return {
-            ...workspace,
-            isOwner: (workspace.members[workspace.owner] === getState().auth.username)
-          }
-        })
-        dispatch(fetchWorkspaceSuccess(data))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(fetchWorkspaceError(workspaceId, error))
-      })
-  }
+  return apiGet([WORKSPACES_PATH, workspaceId],
+    withDispatch(fetchWorkspacePending.bind(workspaceId)),
+    (dispatch, getState, data) =>
+      dispatch(fetchWorkspaceSuccess(
+        data.map(w => ({ ...w, isOwner: (w.members[w.owner] === getState().auth.username) }))
+      )),
+    withDispatch(fetchWorkspaceError.bind(null, this)))
 }
 
 // createWorkspace is similar to fetchWorkspace, but
@@ -102,60 +142,28 @@ export const fetchWorkspace = (workspaceId) => {
 // On success the new workspace will be added to the
 // redux store as well as be in the backend.
 export const createWorkspace = (newWorkspace) => {
-  return (dispatch, getState) => {
-    dispatch(createWorkspacePending(newWorkspace.name))
+  return apiPost([WORKSPACES_PATH],
+    withDispatch(createWorkspacePending.bind(null, newWorkspace.name)),
+    (dispatch, getState, createdWorkspace) => {
+      dispatch(createWorkspaceSuccess({ ...createdWorkspace, isOwner: true }))
 
-    const url = BASE_URL + WORKSPACES_PATH
-    console.log(url)
-
-    return fetch(url, {
-      method: 'POST',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      }),
-      body: JSON.stringify(newWorkspace)
-    }).then(data => data.json())
-      .then(jsonData => {
-        const createdWorkspace = { ...jsonData, isOwner: true }
-        dispatch(createWorkspaceSuccess(createdWorkspace))
-
-        // NOTE: This is used to make the workspace be displayed in the list
-        // otherwise a fetchmember(username) has to be used, but since we know
-        // that it was successfully added, it's not needed.
-        dispatch(addMemberWorkspacesState(getState().auth.username, createdWorkspace))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(createWorkspaceError(newWorkspace, error))
-      })
-  }
+      // NOTE: This is used to make the workspace be displayed in the list
+      // otherwise a fetchmember(username) has to be used, but since we know
+      // that it was successfully added, it's not needed.
+      dispatch(addMemberWorkspacesState(getState().auth.username, createdWorkspace))
+    },
+    withDispatch(createWorkspaceError),
+    { body: JSON.stringify(newWorkspace) }
+  )
 }
 
 // fetchCollection, similar to above redux-thunk functions
 // will fetch a collection given its id
 export const fetchCollection = (collectionId) => {
-  return (dispatch, getState) => {
-    dispatch(fetchCollectionPending(collectionId))
-
-    const url = BASE_URL + COLLECTIONS_PATH + collectionId
-    console.log(url)
-
-    return fetch(url, {
-      method: 'GET',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      })
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(fetchCollectionSuccess(jsonData))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(fetchCollectionError(error))
-      })
-  }
+  return apiGet([COLLECTIONS_PATH, collectionId],
+    withDispatch(fetchCollectionPending.bind(null, collectionId)),
+    withDispatch(fetchCollectionSuccess),
+    withDispatch(fetchCollectionError))
 }
 
 // createCollection, similar to above redux-thunk functions
@@ -163,110 +171,51 @@ export const fetchCollection = (collectionId) => {
 // a collection name. On success it will be added to the
 // redux-store.
 export const createCollection = (workspace, collectionName) => {
-  return (dispatch, getState) => {
-    dispatch(createCollectionPending(workspace.id, collectionName))
-    console.log('Creating collection ' + workspace.id + ' , ' + collectionName)
-
-    const url = BASE_URL + COLLECTIONS_PATH
-
-    return fetch(url, {
-      method: 'POST',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      }),
-      body: JSON.stringify({ workspace, name: collectionName })
-
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(createCollectionSuccess(jsonData))
-        // update the state.member.memberByUsername[username].collections
-        // dictionary to match this newly created collections. This makes it
-        // such that another fetch is unnecessary.
-        dispatch(addMemberCollectionsState(getState().auth.username, jsonData))
-      })
-      .catch(error => {
-        dispatch(createCollectionError(workspace.id, collectionName, error))
-      })
-  }
+  return apiPost([COLLECTIONS_PATH],
+    withDispatch(createCollectionPending.bind(null, workspace.id, collectionName)),
+    (dispatch, getState, data) => {
+      dispatch(createCollectionSuccess(data))
+      // update the state.member.memberByUsername[username].collections
+      // dictionary to match this newly created collections. This makes it
+      // such that another fetch is unnecessary.
+      dispatch(addMemberCollectionsState(getState().auth.username, data))
+    },
+    withDispatch(createCollectionError.bind(null, workspace.id, collectionName)),
+    { body: JSON.stringify({ workspace, name: collectionName }) }
+  )
 }
 
 // updateItemOfCollection is used to update, not create, an item
 // this is used when updating updating the item state (bought, added, cancelled)
 // but can be used for updating all non-readonly fields such as the quantity
 export const updateItemOfCollection = (collectionId, item) => {
-  return (dispatch, getState) => {
-    dispatch(updateItemOfCollectionPending)
-
-    const url = BASE_URL + ITEMS_PATH + item.id + '/'
-
-    return fetch(url, {
-      method: 'PATCH',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      }),
-      body: JSON.stringify(item)
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(updateItemOfCollectionSuccess(collectionId, item))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(updateItemOfCollectionError(collectionId, item, error))
-      })
-  }
+  return apiPatch([ITEMS_PATH, item.id],
+    withDispatch(updateItemOfCollectionPending),
+    withDispatch(updateItemOfCollectionSuccess.bind(null, collectionId, item)),
+    withDispatch(updateItemOfCollectionError.bind(null, collectionId, item)),
+    { body: JSON.stringify(item) }
+  )
 }
 
 // addItemToCollection is used to add an item object to a collection.
 // On success it will be updated in the redux store.
 export const addItemToCollection = (collectionId, item) => {
-  return (dispatch, getState) => {
-    dispatch(addItemToCollectionPending(collectionId, item))
-
-    const url = BASE_URL + COLLECTIONS_PATH + collectionId + '/item/'
-
-    return fetch(url, {
-      method: 'PUT',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      }),
-      body: JSON.stringify(item)
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(addItemToCollectionSuccess(collectionId, jsonData.item))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(addItemToCollectionError(collectionId, item, error))
-      })
-  }
+  return apiPut([COLLECTIONS_PATH, collectionId, 'item'],
+    withDispatch(addItemToCollectionPending.bind(null, collectionId, item)),
+    (dispatch, getState, data) => dispatch(addItemToCollectionSuccess(collectionId, data.item)),
+    withDispatch(addItemToCollectionError.bind(null, collectionId, item)),
+    { body: JSON.stringify(item) }
+  )
 }
 
 // fetchMember is used to fetch crucial information about a member,
 // (really a user since all workspaces and collections the member belongs
 // to are returned). On success it will be reflected in the redux-store.
 export const fetchMember = (username) => {
-  return (dispatch, getState) => {
-    dispatch(fetchMemberPending())
-
-    const url = BASE_URL + MEMBERS_PATH + username + '/'
-
-    return fetch(url, {
-      method: 'GET',
-      headers: new Headers({
-        'Content-type': 'application/json',
-        ...authorizationToken(getState())
-      })
-    }).then(data => data.json())
-      .then(jsonData => {
-        dispatch(fetchMemberSuccess(jsonData.id, jsonData.username,
-          jsonData.workspaces, jsonData.collections))
-      })
-      .catch(error => {
-        console.log(error)
-        dispatch(fetchMemberError(error))
-      })
-  }
+  return apiGet([MEMBERS_PATH, username],
+    withDispatch(fetchMemberPending),
+    (dispatch, getState, data) => dispatch(fetchMemberSuccess(
+      data.id, data.username, data.workspaces, data.collections, data.all_collections
+    )),
+    withDispatch(fetchMemberError))
 }
