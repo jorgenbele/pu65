@@ -13,13 +13,16 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
 
   const sucsessfulLogin = () => {
     // FIXME
-    return props.username !== '' && props.password !== '' && props.error === null
+    console.log(props.token != null)
+    return props.username !== '' && props.password !== '' && props.token != null
   }
 
   return (
     <View>
-      <Headline>
-        Please log in
+      <Headline
+        style={{ textAlign: 'center', padding: 20 }}
+      >
+        Please log in :)
       </Headline>
 
       <TextInput
@@ -35,6 +38,7 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
       <HelperText
         type='error'
         visible={!sucsessfulLogin()}
+        style={{ fontSize: 20, textAlign: 'center' }}
       >
           Password or username is wrong!
       </HelperText>
@@ -55,8 +59,9 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
         Log in
       </Button>
       <HelperText
-        type='error'
+        type='info'
         visible={sucsessfulLogin()}
+        style={{ fontSize: 25, color: '#BA8CDF', textAlign: 'center' }}
       >
           You sucsessfully loged in!!
       </HelperText>
