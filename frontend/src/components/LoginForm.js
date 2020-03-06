@@ -12,14 +12,14 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
   const [password, setPassword] = useState('')
 
   const sucsessfulLogin = () => {
-    return props.username !== '' && props.password !== '' && props.error === 0
-    /* dispatch(authLogin(username, password)) */
+    // FIXME
+    return props.username !== '' && props.password !== '' && props.error === null
   }
 
   return (
     <View>
       <Headline>
-        Create new workspace
+        Please log in
       </Headline>
 
       <TextInput
@@ -41,25 +41,34 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
 
       <Button
         mode='contained' onPress={() => {
-          props.authLogin(username, password)
+          authLogin(username, password)
+          console.log('Pressed')
           if (sucsessfulLogin) return
           navigation.dispatch(
             CommonActions.navigate({
               name: 'Workspacescreen'
             })
+          // FIX Navigation
           )
         }}
       >
-        Create workspace
+        Log in
       </Button>
+      <HelperText
+        type='error'
+        visible={sucsessfulLogin()}
+      >
+          You sucsessfully loged in!!
+      </HelperText>
     </View>
   )
 }
 
 const mapStateToProps = state => ({
-  usernameState: state.auth.username,
-  passwordState: state.auth.password,
-  error: state.auth.error
+  username: state.auth.username,
+  password: state.auth.password,
+  error: state.auth.error,
+  token: state.auth.token
 })
 
 const mapDispatchToProps = { authLogin }
