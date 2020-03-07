@@ -7,8 +7,6 @@ import { Provider as StoreProvider } from 'react-redux'
 
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
-//
-import SettingsScreen from './src/screens/SettingsScreen'
 
 import CollectionsStackNavigator from './src/navigation/CollectionsStackNavigator'
 import WorkspacesStackNavigator from './src/navigation/WorkspacesStackNavigator'
