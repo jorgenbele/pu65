@@ -52,8 +52,21 @@ export function createCollection (collection) {
   return { type: COLLECTION.CREATE, payload: { collection } }
 }
 
+// not implemented
 export function deleteCollection (collection) {
   return { type: COLLECTION.DELETE, payload: { collection } }
+}
+
+export function inviteMemberToCollectionPending (collectionId, username) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_PENDING, payload: { collectionId, username } }
+}
+
+export function inviteMemberToCollectionSuccess (collectionId, username) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_SUCCESS, payload: { collectionId, username } }
+}
+
+export function inviteMemberToCollectionError (collectionId, username, inviteError) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_ERROR, payload: { collectionId, username, inviteError } }
 }
 
 export function createWorkspacePending (workspaceName) {

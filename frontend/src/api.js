@@ -17,6 +17,7 @@ import {
   createCollectionSuccess, createCollectionPending, createCollectionError,
   addItemToCollectionSuccess, addItemToCollectionPending, addItemToCollectionError,
   updateItemOfCollectionSuccess, updateItemOfCollectionPending, updateItemOfCollectionError,
+  inviteMemberToCollectionSuccess, inviteMemberToCollectionPending, inviteMemberToCollectionError,
 
   fetchMemberSuccess, fetchMemberPending, fetchMemberError, authLogoutPending,
 
@@ -182,6 +183,20 @@ export const createCollection = (workspace, collectionName) => {
     },
     withDispatch(createCollectionError.bind(null, workspace.id, collectionName)),
     { body: JSON.stringify({ workspace, name: collectionName }) }
+  )
+}
+
+export const inviteMemberToCollection = (collectionId, username) => {
+  return apiPost([COLLECTIONS_PATH, collectionId, 'invite', username],
+    withDispatch(inviteMemberToCollectionPending.bind(null, collectionId, username)),
+    (dispatch, getState, data) => {
+      dispatch(inviteMemberToCollectionSuccess(data))
+      // update the state.member.memberByUsername[username].collections
+      // dictionary to match this newly created collections. This makes it
+      // such that another fetch is unnecessary.
+      dispatch(addMemberCollectionsState(username, data))
+    },
+    withDispatch(inviteMemberToCollectionError.bind(null, collectionId, username))
   )
 }
 

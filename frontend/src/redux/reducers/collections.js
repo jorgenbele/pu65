@@ -5,6 +5,7 @@ import { immutableReplaceAtIndex } from '../../utils'
 const initialState = {
   fetchPendingIds: new Set(),
   createPending: new Set(), // set of pairs (workspaceId, collectionName)
+  invitePending: new Set(), // set of pairs (collectionId, username)
   error: null,
 
   collectionsById: {}
@@ -144,6 +145,27 @@ export default function (state = initialState, action) {
       const createPending = new Set(state.createPending)
       createPending.delete([workspaceId, collectionName])
       return { ...state, error, createPending }
+    }
+
+    case COLLECTION.INVITE_MEMBER_TO_COLLECTION_PENDING: {
+      const { collectionId, username } = action.payload
+      const invitePending = new Set(state.invitePending)
+      invitePending.add([collectionId, username])
+      return { ...state, invitePending }
+    }
+
+    case COLLECTION.INVITE_MEMBER_TO_COLLECTION_SUCCESS: {
+      const { collectionId, username } = action.payload
+      const invitePending = new Set(state.invitePending)
+      invitePending.delete([collectionId, username])
+      return { ...state, invitePending }
+    }
+
+    case COLLECTION.INVITE_MEMBER_TO_COLLECTION_ERROR: {
+      const { collectionId, username, inviteError } = action.payload
+      const invitePending = new Set(state.invitePending)
+      invitePending.delete([collectionId, username])
+      return { ...state, invitePending, inviteError }
     }
 
     default:
