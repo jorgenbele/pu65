@@ -45,6 +45,11 @@ export function authLogin (username, password) {
       body
     }).then(data => data.json())
       .then(jsonData => {
+        if (!jsonData.token) {
+          dispatch(authLoginError('No token'))
+          return
+        }
+
         dispatch(authLoginSuccess(username, jsonData.token))
 
         // FIXME: should probably not be here, this fetches the member

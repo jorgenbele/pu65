@@ -26,7 +26,7 @@ const login = () => {
 const BottomTab = createMaterialBottomTabNavigator()
 
 export default function App () {
-  login()
+  if (SECRETS.LOGIN_BY_DEFAULT) login()
 
   return (
     <StoreProvider store={store}>

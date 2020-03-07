@@ -131,3 +131,11 @@ export const immutableReplaceAtIndex = (array, index, element) => {
 export const sortCompareNumber = (getField) => {
   return (l, r) => getField(l) > getField(r) ? 1 : (getField(r) > getField(l) ? -1 : 0)
 }
+
+// promiseDelay is used to do something async in the future
+// after some delay
+export const promiseDelay = (duration) => {
+  return new Promise((resolve, reject) => setTimeout(() => {
+    resolve()
+  }, duration))
+}

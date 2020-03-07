@@ -1,25 +1,27 @@
 import { AUTH } from '../actionTypes'
 
 const initialState = {
-  username: 'jbr',
-  token: '716e8f4f78eab7d4dff3a4237a94b32c9159e244'
+  username: null,
+  token: null,
+  loggedIn: false,
+  pending: false
 }
 
 export default function (state = initialState, action) {
   switch (action.type) {
     case AUTH.LOG_IN_PENDING: {
-      return { ...state, pending: true }
+      return { ...state, username: null, token: null, pending: true, loggedIn: false }
     }
 
     case AUTH.LOG_IN_SUCCESS: {
       const { username, token } = action.payload
       console.log('LOGGED IN: ', username + ' ' + token)
-      return { ...state, pending: false, username, token }
+      return { ...state, pending: false, username, token, loggedIn: true }
     }
 
     case AUTH.LOG_IN_ERROR: {
       const { error } = action.payload
-      return { ...state, pending: false, error }
+      return { ...state, username: null, token: null, pending: false, error, loggedIn: false }
     }
 
     case AUTH.LOG_OUT:
