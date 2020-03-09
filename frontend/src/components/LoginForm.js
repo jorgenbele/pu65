@@ -41,6 +41,7 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
       />
       <TextInput
         label='Password'
+        secureTextEntry
         value={password}
         onChangeText={text => setPassword(text)}
       />

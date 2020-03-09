@@ -21,12 +21,25 @@ export default function (state = initialState, action) {
 
     case AUTH.LOG_IN_ERROR: {
       const { error } = action.payload
+      console.log('LOGIN ERROR ', error)
       return { ...state, username: null, token: null, pending: false, error, loggedIn: false }
     }
 
-    case AUTH.LOG_OUT:
-      // TODO
-      return state
+    case AUTH.LOG_OUT_PENDING: {
+      console.log('LOGGED OUT PENDING')
+      return { ...state, pending: true }
+    }
+
+    case AUTH.LOG_OUT_SUCCESS: {
+      console.log('LOGGED OUT')
+      return { ...state, pending: false, username: null, token: null, loggedIn: false }
+    }
+
+    case AUTH.LOG_OUT_ERROR: {
+      const { error } = action.payload
+      console.log('LOGOUT ERROR ', error)
+      return { ...state, pending: false, error }
+    }
 
     case AUTH.CREATE_USER:
       // TODO

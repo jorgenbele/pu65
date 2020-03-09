@@ -22,7 +22,10 @@ from rest_framework import routers, serializers, viewsets
 from app.views import CollectionsViewSet, CollectionsItemViewSet, \
     MembersViewSet, WorkspacesViewSet
 
-from app.views import collection_item, workspace_collection, CollectionItemDetail
+from app.views import logout
+from app.views import collection_item, collection_join, collection_leave
+from app.views import collection_invite
+from app.views import workspace_collection, CollectionItemDetail
 from app.views import MemberDetail
 
 from rest_framework.authtoken.views import obtain_auth_token
@@ -39,6 +42,15 @@ urlpatterns = [
     path(r'collections/<int:pk>/item/',
          collection_item,
          name='collections_item'),
+    path(r'collections/<int:pk>/join/',
+         collection_join,
+         name='collections_join'),
+    path(r'collections/<int:pk>/leave/',
+         collection_leave,
+         name='collections_leave'),
+    path(r'collections/<int:pk>/invite/<str:username>/',
+         collection_invite,
+         name='collections_invite'),
     path(r'items/<int:pk>/', CollectionItemDetail.as_view(),
          name='item_by_id'),
     path(r'members/<str:username>/',
@@ -47,6 +59,16 @@ urlpatterns = [
     path(r'workspaces/<int:pk>/collection/',
          workspace_collection,
          name='workspace_collection'),
+
+    # TODO
+    # path(r'workspaces/<int:pk>/admin/create_join_code',
+    #      workspace_create_join_code,
+    #      name='workspace_create_join_code'),
+
+    # path(r'workspaces/join/<int:join_code>',
+    #      workspace_join_by_code,
+    #      name='workspace_join_by_code'),
+    path(r'logout/', logout, name='logout'),
     path('api-token-auth/', obtain_auth_token, name='auth_token'),
     path('api-auth/', include('rest_framework.urls',
                               namespace='rest_framework'))

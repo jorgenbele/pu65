@@ -37,17 +37,19 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
 
+    # joined collections from all workspaces
     collections = serializers.SerializerMethodField()
+
+    all_collections = serializers.SerializerMethodField()  # TESTING PURPOSES
     workspaces = serializers.SerializerMethodField()
 
     # get a dict {member_pk: member_username, ...}
     def get_workspaces(self, member):
         return {w.pk: w.name for w in member.part_of_workspaces.all()}
 
-    # get a dict {member_pk: member_username, ...}
-    def get_collections(self, member):
-        # TODO: Must be changed when supporting
-        # private lists and such
+    def get_all_collections(self, member):
+        # for testing purposes, can easily see which workspaces
+        # the user has joined, and which they have not
         collections = Collection.objects.filter(
             workspace__members__id__exact=member.id)
         d = {}
@@ -55,9 +57,19 @@ class MemberSerializer(serializers.ModelSerializer):
             d[c.id] = c.name
         return d
 
+    # get a dict {member_pk: member_username, ...}
+    def get_collections(self, member):
+        collections = Collection.objects.filter(members__id__exact=member.id)
+        d = {}
+        for c in collections:
+            d[c.id] = c.name
+        return d
+
     class Meta:
         model = Member
-        fields = ['id', 'username', 'workspaces', 'collections']
+        fields = [
+            'id', 'username', 'workspaces', 'collections', 'all_collections'
+        ]
 
 
 class CollectionItemSerializer(serializers.ModelSerializer):
@@ -128,12 +140,10 @@ class CollectionSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField()
     id = serializers.PrimaryKeyRelatedField(read_only=True)
 
-    def get_workspace(self, collection):
-        workspace = collection.workspace
-        return {'id': workspace.pk, 'name': workspace.name}
+    #def get_workspace(self, collection):
+    #    workspace = collection.workspace
+    #    return {'id': workspace.pk, 'name': workspace.name}
 
     class Meta:
         model = Collection
-        fields = [
-            'workspace', 'created_by', 'name', 'items', 'id', 'workspace'
-        ]
+        fields = ['workspace', 'created_by', 'name', 'items', 'id']

@@ -32,7 +32,7 @@ export function addItemToCollectionSuccess (collectionId, item) {
   return { type: COLLECTION.ADD_ITEM_SUCCESS, payload: { collectionId, item } }
 }
 
-export function addItemCollectionError (collectionId, item, error) {
+export function addItemToCollectionError (collectionId, item, error) {
   return { type: COLLECTION.ADD_ITEM_ERROR, payload: { collectionId, item, error } }
 }
 
@@ -52,8 +52,21 @@ export function createCollection (collection) {
   return { type: COLLECTION.CREATE, payload: { collection } }
 }
 
+// not implemented
 export function deleteCollection (collection) {
   return { type: COLLECTION.DELETE, payload: { collection } }
+}
+
+export function inviteMemberToCollectionPending (collectionId, username) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_PENDING, payload: { collectionId, username } }
+}
+
+export function inviteMemberToCollectionSuccess (collectionId, username) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_SUCCESS, payload: { collectionId, username } }
+}
+
+export function inviteMemberToCollectionError (collectionId, username, inviteError) {
+  return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_ERROR, payload: { collectionId, username, inviteError } }
 }
 
 export function createWorkspacePending (workspaceName) {
@@ -93,16 +106,29 @@ export function authLoginError (error) {
   return { type: AUTH.LOG_IN_ERROR, payload: { error } }
 }
 
-export function authLogout (token) {
-  return { type: AUTH.LOG_OUT, payload: { token } }
+export function authLogoutPending (token) {
+  return { type: AUTH.LOG_OUT_SUCCESS, payload: { token } }
+}
+
+export function authLogoutSuccess () {
+  return { type: AUTH.LOG_OUT_SUCCESS, payload: { } }
+}
+
+export function authLogoutError (error) {
+  return { type: AUTH.LOG_OUT_ERROR, payload: { error } }
 }
 
 export function fetchMemberPending (username) {
   return { type: MEMBERS.FETCH_PENDING, payload: { username } }
 }
 
-export function fetchMemberSuccess (id, username, workspaces, collections) {
-  return { type: MEMBERS.FETCH_SUCCESS, payload: { id, username, workspaces, collections } }
+export function fetchMemberSuccess (id, username, workspaces, collections, allCollections) {
+  return {
+    type: MEMBERS.FETCH_SUCCESS,
+    payload: {
+      id, username, workspaces, collections, allCollections
+    }
+  }
 }
 
 export function fetchMemberError (username, error) {

@@ -18,7 +18,9 @@ export default function (state = initialState, action) {
     }
 
     case MEMBERS.FETCH_SUCCESS: {
-      const { id, username, workspaces, collections } = action.payload
+      const {
+        id, username, workspaces, collections, allCollections
+      } = action.payload
       const fetchPendingUsernames = new Set(state.fetchPendingUsernames)
       fetchPendingUsernames.delete(username)
       return {
@@ -27,7 +29,7 @@ export default function (state = initialState, action) {
         fetchPendingUsernames,
         membersByUsername: {
           ...state.membersByUsername,
-          [username]: { id, workspaces, collections }
+          [username]: { id, workspaces, collections, allCollections }
         }
       }
     }
