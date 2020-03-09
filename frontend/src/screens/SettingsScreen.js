@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native'
 import { Button } from 'react-native-paper'
 
 import { CommonActions } from '@react-navigation/native'
-import { authLogin, authLogout } from '../api'
+import { authLogout } from '../api'
 import store from '../redux/store'
 
 const login = (navigation) => {
