@@ -8,6 +8,8 @@ import { CommonActions } from '@react-navigation/native'
 import { authLogin } from '../api'
 import { promiseDelay } from '../utils'
 
+import SECRETS from '../secrets'
+
 function LoginForm ({ navigation, route, authLogin, ...props }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -15,7 +17,7 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
   const { loggedIn, pending } = props
 
   if (loggedIn) {
-    promiseDelay(500).then(() => {
+    promiseDelay(1000).then(() => {
       // Let the successfull message be displayed for 500 ms
       navigation.dispatch(
         CommonActions.navigate({
@@ -47,7 +49,7 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
         visible={!loggedIn && !pending}
         style={{ fontSize: 20, textAlign: 'center' }}
       >
-          Password or username is wrong!
+          Invalid password and username combination!
       </HelperText>
 
       <Button
@@ -64,8 +66,17 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
         visible={loggedIn}
         style={{ fontSize: 25, color: '#BA8CDF', textAlign: 'center' }}
       >
-          You sucsessfully loged in!!
+          You successfully logged in!!
       </HelperText>
+
+      <Button
+        mode='contained' onPress={() => {
+          console.log(SECRETS.USER_NAME, SECRETS.USER_PASSWORD)
+          authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD)
+        }}
+      >
+        Debug login
+      </Button>
     </View>
   )
 }

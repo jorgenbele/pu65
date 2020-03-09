@@ -2,14 +2,18 @@ import React from 'react'
 import { ScrollView } from 'react-native'
 import { Button } from 'react-native-paper'
 
-import { authLogin } from '../api'
-import store from '../redux/store'
-import SECRETS from '../secrets'
+import { CommonActions } from '@react-navigation/native'
 
-const login = () => {
-  store.dispatch(authLogin(SECRETS.USER_NAME, SECRETS.USER_PASSWORD))
+import store from '../redux/store'
+
+const login = (navigation) => {
+  navigation.dispatch(
+    CommonActions.navigate({
+      name: 'Login'
+    }))
 }
-export default function SettingsScreen () {
+
+export default function SettingsScreen ({ navigation, route, ...props }) {
   return (
     <ScrollView>
       <Button icon='login' mode='contained' onPress={() => login()}>
