@@ -27,6 +27,7 @@ from app.views import collection_item, collection_join, collection_leave
 from app.views import collection_invite
 from app.views import workspace_collection, CollectionItemDetail
 from app.views import MemberDetail
+from app.views import create_user
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -59,6 +60,7 @@ urlpatterns = [
     path(r'workspaces/<int:pk>/collection/',
          workspace_collection,
          name='workspace_collection'),
+    path(r'create_user/', create_user, name='create_user'),
 
     # TODO
     # path(r'workspaces/<int:pk>/admin/create_join_code',

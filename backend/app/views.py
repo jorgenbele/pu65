@@ -12,6 +12,7 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .permissions import IsCollectionItemWorkspaceMember
@@ -225,6 +226,45 @@ class MemberDetail(generics.RetrieveAPIView):
 def logout(request):
     request.user.auth_token.delete()
     return Response(status=status.HTTP_200_OK)
+
+
+from django.views.decorators.csrf import csrf_protect
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([AllowAny])
+def create_user(request):
+    try:
+        username = request.data['username']
+        password = request.data['password']
+
+        if request.method == 'POST':
+            if Member.objects.filter(username=username).exists():
+                return Response(data={
+                    'failure':
+                    'user with username {username} already exists'
+                },
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            member = Member.objects.create(username=username)
+            member.set_password(password)
+            member.save()
+
+            data = {
+                'success': f'created user {username}',
+                'user': {
+                    'username': username,
+                    'id': member.id
+                }
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(data={'failure': f'could not create user'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view([
