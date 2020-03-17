@@ -1,7 +1,7 @@
-/// COLLECTIONSCREEN
-import React, { useEffect } from 'react'
-import { StyleSheet, RefreshControl, ScrollView } from 'react-native'
-import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
+import React, { useEffect, useState } from 'react'
+import { RefreshControl, ScrollView } from 'react-native'
+import { List, ActivityIndicator, FAB as FloatingActionButton } from 'react-native-paper'
+
 import { connect } from 'react-redux'
 import { CommonActions } from '@react-navigation/native'
 
@@ -11,6 +11,8 @@ import { makeCollectionItem, sortCompareNumber } from '../utils'
 import { STATE_BOUGHT, STATE_ADDED } from '../constants/ItemStates'
 
 const CollectionScreen = ({ navigation, collections, route, ...props }) => {
+  const [open, setOpen] = useState(false)
+
   // collectionId is passed by the navigation system. See the onPress
   // anonymous function in makeCollectionListItem() in CollectionsScreen.js
   const { collectionId } = route.params
@@ -19,6 +21,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
     const { fetchCollection } = props
     fetchCollection(collectionId)
   }
+
   useEffect(() => { onRefresh() }, [])
 
   const isLoaded = () => (collectionId != null && (collectionId in collections.collectionsById))
@@ -31,15 +34,6 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
   const collection = collections.collectionsById[collectionId]
   const { items } = collection
 
-  const styles = StyleSheet.create({
-    fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0
-    }
-  })
-
   const handleAddItem = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -47,6 +41,30 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
         params: { collection }
       })
     )
+  }
+
+  const handleAddMember = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AddMember',
+        params: { collection }
+      })
+    )
+  }
+
+  // dummie function
+  const leaveCollection = (collectionId) => {
+    console.log('You have left the collection')
+  }
+
+  const handleLeaveCollection = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'Collections',
+        params: { collection }
+      })
+    )
+    leaveCollection(collection.id)
   }
 
   const handleToggleItemState = (item) => {
@@ -61,6 +79,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
   const otherItems = sortedItems.filter(item => item.state !== STATE_BOUGHT)
 
   const { updateItemOfCollection } = props
+
   return (
     <>
       <ScrollView
@@ -72,7 +91,9 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
         }
       >
         <List.Section>
-          <List.Subheader>Items</List.Subheader>
+          <List.Subheader>
+            Items
+          </List.Subheader>
           {otherItems.map(item => {
             const checkmark = item.state === STATE_BOUGHT
             return makeCollectionItem(item, {
@@ -93,12 +114,16 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
           })}
         </List.Section>
       </ScrollView>
-
-      <FAButton
-        style={styles.fab}
-        medium
-        icon='plus'
-        onPress={handleAddItem}
+      <FloatingActionButton.Group
+        open={open}
+        icon={open ? 'menu-up' : 'menu-down'}
+        actions={[
+          { icon: 'plus', label: 'Legg til produkt', onPress: () => { handleAddItem() } },
+          { icon: 'account-switch', label: 'Legg til medlem', onPress: () => { handleAddMember() } },
+          { icon: 'playlist-remove', label: 'Forlat handleliste', onPress: () => { handleLeaveCollection() } }
+        ]}
+        onStateChange={() => setOpen(!open)}
+        visible
       />
     </>
   )
