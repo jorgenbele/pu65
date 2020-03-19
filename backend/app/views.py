@@ -24,6 +24,7 @@ from .permissions import IsItemCollectionMember
 #from .permissions import IsWorkspaceMember
 from .permissions import IsCurrentMember
 from .permissions import IsWorkspaceOwner
+from .permissions import IsWorkspaceMember
 
 
 class MembersViewSet(viewsets.ModelViewSet):
@@ -303,7 +304,56 @@ def collection_invite(request, pk, username):
 @api_view([
     'POST',
 ])
-@permission_classes([IsAuthenticated, IsWorkspaceOwner])
-def workspace_create_join_code(request, pk, username):
-    # TODO
-    pass
+@permission_classes([IsAuthenticated, IsWorkspaceMember])
+def workspace_invite(request, pk, username):
+    try:
+        member = Member.objects.get(username=username)
+        workspace = Workspace.objects.get(pk=pk)
+
+        if request.method == 'POST':
+            if member.part_of_workspaces.filter(pk=pk).exists():
+                return Response(data={
+                    'failure':
+                    'member is already a member of the workspace'
+                },
+                                status=status.HTTP_400_BAD_REQUEST)
+            member.part_of_workspaces.add(pk)
+            member.save()
+
+            data = {'success': f'invited user {username} to workspace {pk}'}
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsWorkspaceMember])
+def workspace_leave(request, pk):
+    try:
+        member = Member.objects.get(pk=request.user.pk)
+        workspace = Workspace.objects.get(pk=pk)
+
+        if request.method == 'POST':
+            if not member.part_of_workspaces.filter(pk=pk).exists():
+                return Response(
+                    data={'failure': 'not a member of the workspace'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            member.part_of_workspaces.remove(pk)
+            member.save()
+
+            data = {
+                'success':
+                f'removed user {member.username} from workspace {pk}'
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)

@@ -28,6 +28,7 @@ from app.views import collection_invite
 from app.views import workspace_collection, CollectionItemDetail
 from app.views import MemberDetail
 from app.views import create_user
+from app.views import workspace_invite, workspace_leave
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -61,6 +62,12 @@ urlpatterns = [
          workspace_collection,
          name='workspace_collection'),
     path(r'create_user/', create_user, name='create_user'),
+    path(r'workspaces/<int:pk>/invite/<str:username>/',
+         workspace_invite,
+         name='workspace_invite'),
+    path(r'workspaces/<int:pk>/leave/',
+         workspace_leave,
+         name='workspace_leave'),
 
     # TODO
     # path(r'workspaces/<int:pk>/admin/create_join_code',

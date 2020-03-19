@@ -360,6 +360,52 @@ class WorkspacesTestCase(TestCase):
         workspace = Workspace.objects.get(name='testworkspace_new')
         self.assertEqual(workspace.name, 'testworkspace_new')
 
+    def test_invite_and_leave_workspace(self):
+        def invite_ok(workspace_id, username, token):
+            r = self.client.post(reverse('workspace_invite',
+                                         args=[workspace_id, username]),
+                                 HTTP_AUTHORIZATION='Token ' + token,
+                                 format='json')
+            # print(r)
+            # print(r.status_code)
+            return r.status_code == 201
+
+        def leave_ok(workspace_id, token):
+            r = self.client.post(reverse('workspace_leave',
+                                         args=[workspace_id]),
+                                 HTTP_AUTHORIZATION='Token ' + token,
+                                 format='json')
+            print(r)
+            print(r.status_code)
+            return r.status_code == 201
+
+        # member 2 is the owner of workspace 2 and cannot be invited since
+        # it has already joined it
+        self.assertFalse(
+            invite_ok(self.workspaces[1].pk,
+                      self.members[1].username,
+                      token=self.tokens[1]))
+        # member 1 is not a member and cannot invite anyone
+        self.assertFalse(
+            invite_ok(self.workspaces[1].pk,
+                      self.members[0].username,
+                      token=self.tokens[0]))
+
+        # member 1 cannot invite member 2
+        self.assertFalse(
+            invite_ok(self.workspaces[1].pk,
+                      self.members[1].username,
+                      token=self.tokens[0]))
+
+        # member 2 can invite member 1
+        self.assertTrue(
+            invite_ok(self.workspaces[1].pk,
+                      self.members[0].username,
+                      token=self.tokens[1]))
+
+        # member 1 can leave workspace
+        self.assertTrue(leave_ok(self.workspaces[1].pk, token=self.tokens[0]))
+
 
 class CollectionsTestCaseSetup(TestCase):
     def setUp(self):

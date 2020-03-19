@@ -186,3 +186,16 @@ class IsWorkspaceOwner(permissions.DjangoObjectPermissions):
         except Workspace.DoesNotExist:
             return False
         return workspace.owner == member
+
+
+# IsWorkspaceMember is used to limit access to member-only actions
+class IsWorkspaceMember(permissions.DjangoObjectPermissions):
+    def has_permission(self, request, view):
+        try:
+            member = Member.objects.get(id=request.user.id)
+        except Member.DoesNotExist:
+            return False
+
+        print(member)
+        print(member.part_of_workspaces.all())
+        return member.part_of_workspaces.filter(pk=view.kwargs['pk']).exists()
