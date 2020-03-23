@@ -93,6 +93,42 @@ export function fetchWorkspaceError (workspaceId, error) {
   return { type: WORKSPACE.FETCH_ERROR, payload: { workspaceId, error } }
 }
 
+export function inviteMemberWorkspacePending (workspaceId, username) {
+  return { type: WORKSPACE.INVITE_MEMBER_PENDING, payload: { workspaceId, username } }
+}
+
+export function inviteMemberWorkspaceSuccess (workspaceId, username, data) {
+  return { type: WORKSPACE.INVITE_MEMBER_SUCCESS, payload: { workspaceId, username, data } }
+}
+
+export function inviteMemberWorkspaceError (workspaceId, username, error) {
+  return { type: WORKSPACE.INVITE_MEMBER_ERROR, payload: { workspaceId, username, error } }
+}
+
+export function leaveWorkspacePending (workspaceId) {
+  return { type: WORKSPACE.LEAVE_PENDING, payload: { workspaceId } }
+}
+
+export function leaveWorkspaceSuccess (workspaceId, data) {
+  return { type: WORKSPACE.LEAVE_SUCCESS, payload: { workspaceId, data } }
+}
+
+export function leaveWorkspaceError (workspaceId, error) {
+  return { type: WORKSPACE.LEAVE_ERROR, payload: { workspaceId, error } }
+}
+
+export function removeFromWorkspacePending (workspaceId, username) {
+  return { type: WORKSPACE.REMOVE_FROM_WORKSPACE_PENDING, payload: { workspaceId, username } }
+}
+
+export function removeFromWorkspaceSuccess (workspaceId, username, data) {
+  return { type: WORKSPACE.REMOVE_FROM_WORKSPACE_SUCCESS, payload: { workspaceId, username, data } }
+}
+
+export function removeFromWorkspaceError (workspaceId, username, error) {
+  return { type: WORKSPACE.REMOVE_FROM_WORKSPACE_ERROR, payload: { workspaceId, username, error } }
+}
+
 // Auth
 export function authLoginPending () {
   return { type: AUTH.LOG_IN_PENDING }

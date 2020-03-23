@@ -11,6 +11,9 @@ import {
 
   fetchWorkspaceSuccess, fetchWorkspacePending, fetchWorkspaceError,
   addMemberWorkspacesState, addMemberCollectionsState,
+  inviteMemberWorkspaceSuccess, inviteMemberWorkspacePending, inviteMemberWorkspaceError,
+  leaveWorkspaceSuccess, leaveWorkspacePending, leaveWorkspaceError,
+  removeFromWorkspaceSuccess, removeFromWorkspacePending, removeFromWorkspaceError,
 
   fetchCollectionSuccess, fetchCollectionPending, fetchCollectionError,
 
@@ -162,6 +165,44 @@ export const createWorkspace = (newWorkspace) => {
     withDispatch(createWorkspaceError),
     { body: JSON.stringify(newWorkspace) }
   )
+}
+
+// inviteMemberWorkspace is used to invite a member given by its username
+// to a workspace with the given id.
+export const inviteMemberWorkspace = (workspaceId, username) => {
+  return apiPost([WORKSPACES_PATH, workspaceId, 'invite', username],
+    withDispatch(inviteMemberWorkspacePending.bind(null, workspaceId, username)),
+    (dispatch, _, data) => {
+      console.log('INVITE MEMBER TO WORKSPACE', data)
+      if (data.success) dispatch(inviteMemberWorkspaceSuccess(workspaceId, username, data))
+      else dispatch(inviteMemberWorkspaceError(workspaceId, username, data))
+    },
+    withDispatch(inviteMemberWorkspaceError.bind(null, workspaceId, username)))
+}
+
+// leaveWorkspace is used to invite a member given by its username
+// to a workspace with the given id.
+export const leaveWorkspace = (workspaceId) => {
+  return apiPost([WORKSPACES_PATH, workspaceId, 'leave'],
+    withDispatch(leaveWorkspacePending.bind(null, workspaceId)),
+    (dispatch, _, data) => {
+      if (data.success) dispatch(leaveWorkspaceSuccess(workspaceId, data))
+      else dispatch(leaveWorkspaceError(workspaceId, data))
+    },
+    withDispatch(leaveWorkspaceError.bind(null, workspaceId)))
+}
+
+// removeFromWorkspace is used to remove a member given by its username
+// from a workspace with the given id. Can only be done by the owner of
+// the workspace. It will fail otherwise.
+export const removeFromWorkspace = (workspaceId, username) => {
+  return apiPost([WORKSPACES_PATH, workspaceId, 'remove'],
+    withDispatch(removeFromWorkspacePending.bind(null, workspaceId, username)),
+    (dispatch, _, data) => {
+      if (data.success) dispatch(removeFromWorkspaceSuccess(workspaceId, username, data))
+      else dispatch(removeFromWorkspaceError(workspaceId, username, data))
+    },
+    withDispatch(removeFromWorkspaceError.bind(null, workspaceId, username)))
 }
 
 // fetchCollection, similar to above redux-thunk functions
