@@ -11,6 +11,7 @@ import WorkspacesStackNavigator from './WorkspacesStackNavigator'
 import SettingsStackNavigator from './SettingsStackNavigator'
 
 import LoginForm from '../components/LoginForm'
+import UserCreateForm from '../components/UserCreateForm'
 
 const BottomTab = createMaterialBottomTabNavigator()
 
@@ -53,7 +54,10 @@ function MainNavigator ({ loggedIn }) {
       {loggedIn ? (
         <Stack.Screen name='Home' component={HomeNavigator} />
       ) : (
-        <Stack.Screen name='Login' component={LoginForm} />
+        <>
+          <Stack.Screen name='Login' component={LoginForm} />
+          <Stack.Screen name='UserCreate' component={UserCreateForm} />
+        </>
       )}
     </Stack.Navigator>
   )

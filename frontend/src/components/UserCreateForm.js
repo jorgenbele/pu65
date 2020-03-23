@@ -3,23 +3,22 @@ import { View } from 'react-native'
 import { connect } from 'react-redux'
 
 import { Headline, Button, TextInput, HelperText } from 'react-native-paper'
-// import { CommonActions } from '@react-navigation/native'
+
+import { authCreateUser } from '../api'
 
 function UserCreateForm ({ navigation, route, ...props }) {
   const [username, setUsername] = useState('')
-  const [tryPassword, setTryPassword] = useState('')
   const [password, setPassword] = useState('')
-  const [registered, setRegistered] = useState(false)
+  const [repeat, setRepeat] = useState('')
 
-  const sucsessSetPassword = () => {
-    // FIXME
-    console.log(tryPassword === password)
-    console.log(tryPassword)
-    return tryPassword === password
+  const isValidPassword = () => {
+    return password === repeat
   }
 
-  const dummiFunction = () => {
-    return [username, password]
+  const handleCreateUser = () => {
+    if (!isValidPassword()) return
+    authCreateUser(username, password)
+    navigation.pop()
   }
 
   return (
@@ -37,43 +36,33 @@ function UserCreateForm ({ navigation, route, ...props }) {
       />
       <TextInput
         label='Password'
-        value={tryPassword}
-        onChangeText={text => setTryPassword(text)}
-        secureTextEntry
-      />
-      <TextInput
-        label='Repeat password'
         value={password}
         onChangeText={text => setPassword(text)}
         secureTextEntry
       />
+      <TextInput
+        label='Repeat password'
+        value={repeat}
+        onChangeText={text => setRepeat(text)}
+        secureTextEntry
+      />
       <HelperText
         type='error'
-        visible={!sucsessSetPassword()}
+        visible={!isValidPassword()}
         style={{ fontSize: 20, textAlign: 'center' }}
       >
-          Password does not match!
+          Passwords does not match!
       </HelperText>
 
       <Button
         mode='contained' onPress={() => {
           console.log('Pressed')
-          if (sucsessSetPassword()) {
-            dummiFunction() // Link to backend to save user information
-            setRegistered(true)
-          }
-          // FIX Navigation
+          if (!isValidPassword()) return
+          handleCreateUser()
         }}
       >
         Register
       </Button>
-      <HelperText
-        type='info'
-        visible={registered && sucsessSetPassword()}
-        style={{ fontSize: 25, color: '#BA8CDF', textAlign: 'center' }}
-      >
-          You sucsessfully registered your user!!
-      </HelperText>
     </View>
   )
 }

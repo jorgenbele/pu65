@@ -281,3 +281,9 @@ export const fetchMember = (username) => {
     )),
     withDispatch(fetchMemberError))
 }
+
+// TODO: redux?
+export const authCreateUser = (username, password) => {
+  fetch(BASE_URL + 'create_user/', { method: 'POST', body: { username, password } })
+    .then(() => { console.log('CREATED USER') })
+}

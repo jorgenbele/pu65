@@ -78,6 +78,17 @@ function LoginForm ({ navigation, route, authLogin, ...props }) {
       >
         Debug login
       </Button>
+
+      <Button
+        mode='contained' onPress={() => {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'UserCreate'
+            }))
+        }}
+      >
+        Create new user
+      </Button>
     </View>
   )
 }
