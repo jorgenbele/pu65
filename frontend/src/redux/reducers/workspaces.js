@@ -83,7 +83,7 @@ export default function (state = initialState, action) {
       const { workspaceId, username } = action.payload
 
       const newInvitePendingByIdUsername = state.invitePendingByIdUsername
-      newInvitePendingByIdUsername.set([workspaceId, username])
+      newInvitePendingByIdUsername.add([workspaceId, username])
 
       const newInviteErrorsByIdUsername = state.inviteErrorsByIdUsername
       newInviteErrorsByIdUsername.delete([workspaceId, username])
@@ -99,7 +99,7 @@ export default function (state = initialState, action) {
     case WORKSPACE.INVITE_MEMBER_SUCCESS: {
       const { workspaceId, username } = action.payload
       const newInvitePendingByIdUsername = state.invitePendingByIdUsername
-      newInvitePendingByIdUsername.set([workspaceId, username])
+      newInvitePendingByIdUsername.add([workspaceId, username])
 
       const newInviteErrorsByIdUsername = state.inviteErrorsByIdUsername
       newInviteErrorsByIdUsername.delete([workspaceId, username])
@@ -132,7 +132,7 @@ export default function (state = initialState, action) {
       const { workspaceId, username } = action.payload
 
       const newRemovePendingByIdUsername = state.removePendingByIdUsername
-      newRemovePendingByIdUsername.set([workspaceId, username])
+      newRemovePendingByIdUsername.add([workspaceId, username])
 
       const newRemoveErrorsByIdUsername = state.removeErrorsByIdUsername
       newRemoveErrorsByIdUsername.delete([workspaceId, username])
@@ -148,7 +148,7 @@ export default function (state = initialState, action) {
     case WORKSPACE.REMOVE_FROM_MEMBER_SUCCESS: {
       const { workspaceId, username } = action.payload
       const newRemovePendingByIdUsername = state.removePendingByIdUsername
-      newRemovePendingByIdUsername.set([workspaceId, username])
+      newRemovePendingByIdUsername.add([workspaceId, username])
 
       const newRemoveErrorsByIdUsername = state.removeErrorsByIdUsername
       newRemoveErrorsByIdUsername.delete([workspaceId, username])
@@ -164,7 +164,7 @@ export default function (state = initialState, action) {
     case WORKSPACE.REMOVE_FROM_MEMBER_ERROR: {
       const { workspaceId, username, error } = action.payload
       const newRemovePendingByIdUsername = state.removePendingByIdUsername
-      newRemovePendingByIdUsername.delete([workspaceId, username])
+      newRemovePendingByIdUsername.add([workspaceId, username])
 
       const newRemoveErrorsByIdUsername = state.removeErrorsByIdUsername
       newRemoveErrorsByIdUsername.set([workspaceId, username], error)
@@ -181,7 +181,7 @@ export default function (state = initialState, action) {
       const { workspaceId } = action.payload
 
       const newLeavePendingById = state.leavePendingById
-      newLeavePendingById.set([workspaceId])
+      newLeavePendingById.add(workspaceId)
 
       const newLeaveErrorsById = state.leaveErrorsById
       newLeaveErrorsById.delete(workspaceId)
