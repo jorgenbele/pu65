@@ -107,7 +107,13 @@ function WorkspacesScreen ({ navigation, ...props }) {
           {/* Just map the workspaceId-name list created above to
                the cooresponding workspace item components. */}
           {sortedWorkspaces.map(([workspaceId, name], index) => {
-            return makeWorkspaceListItem(workspaceId, name)
+            return makeWorkspaceListItem(workspaceId, name, {
+              onPress: e => {
+                navigation.dispatch(
+                  CommonActions.navigate({ name: 'InviteUserWorkspace', params: { workspaceId } })
+                )
+              }
+            })
           })}
         </List.Section>
       </ScrollView>

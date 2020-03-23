@@ -97,7 +97,7 @@ export const makeCollectionItem = (item, props) => {
 }
 
 // makeWorkspaceListItem is used to create a workspace list item.
-export const makeWorkspaceListItem = (id, name) => {
+export const makeWorkspaceListItem = (id, name, props) => {
   return (
     <ListItem
       key={id}
@@ -112,6 +112,7 @@ export const makeWorkspaceListItem = (id, name) => {
       subtitleStyle={{ color: 'white' }}
       subtitle={name}
       chevron={{ color: 'white' }}
+      {...props}
     />
   )
 }
