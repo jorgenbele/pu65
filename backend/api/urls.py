@@ -28,7 +28,7 @@ from app.views import collection_invite
 from app.views import workspace_collection, CollectionItemDetail
 from app.views import MemberDetail
 from app.views import create_user
-from app.views import workspace_invite, workspace_leave
+from app.views import workspace_invite, workspace_leave, workspace_remove
 
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -65,18 +65,12 @@ urlpatterns = [
     path(r'workspaces/<int:pk>/invite/<str:username>/',
          workspace_invite,
          name='workspace_invite'),
+    path(r'workspaces/<int:pk>/remove/<str:username>/',
+         workspace_remove,
+         name='workspace_remove'),
     path(r'workspaces/<int:pk>/leave/',
          workspace_leave,
          name='workspace_leave'),
-
-    # TODO
-    # path(r'workspaces/<int:pk>/admin/create_join_code',
-    #      workspace_create_join_code,
-    #      name='workspace_create_join_code'),
-
-    # path(r'workspaces/join/<int:join_code>',
-    #      workspace_join_by_code,
-    #      name='workspace_join_by_code'),
     path(r'logout/', logout, name='logout'),
     path('api-token-auth/', obtain_auth_token, name='auth_token'),
     path('api-auth/', include('rest_framework.urls',

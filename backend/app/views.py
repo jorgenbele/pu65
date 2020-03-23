@@ -357,3 +357,37 @@ def workspace_leave(request, pk):
         print(e)
         return Response(data={'failure': 'not logged in or something'},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view([
+    'POST',
+])
+@permission_classes([IsAuthenticated, IsWorkspaceOwner])
+def workspace_remove(request, pk, username):
+    try:
+        member = Member.objects.get(username=username)
+        workspace = Workspace.objects.get(pk=pk)
+
+        if member.pk == request.user.pk:
+            return Response(data={'failure': 'Cannot remove workspace owner'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'POST':
+            if not member.part_of_workspaces.filter(pk=pk).exists():
+                return Response(
+                    data={'failure': 'not a member of the workspace'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            member.part_of_workspaces.remove(pk)
+            member.save()
+
+            data = {
+                'success':
+                f'removed user {member.username} from workspace {pk}'
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
