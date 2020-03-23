@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 
-import { Headline, Button, TextInput } from 'react-native-paper'
+import { HelperText, Headline, Button, TextInput } from 'react-native-paper'
 import { View } from 'react-native'
 
 import { inviteMemberWorkspace } from '../api'
@@ -16,7 +16,9 @@ function InviteUserWorkspaceForm ({
   const isValidUsername = (username) => username !== ''
 
   const handleInviteUser = (username) => {
+    if (!isValidUsername) return
     inviteMemberWorkspace(workspaceId, username)
+    navigation.pop()
   }
 
   return (
@@ -30,6 +32,12 @@ function InviteUserWorkspaceForm ({
         value={username}
         onChangeText={text => setUsername(text)}
       />
+      <HelperText
+        type='error'
+        visible={!isValidUsername(username)}
+      >
+          You must set a valid username!
+      </HelperText>
 
       <Button
         mode='contained' onPress={() => {
