@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, RefreshControl } from 'react-native'
 import { connect } from 'react-redux'
 import { ScrollView } from 'react-native-gesture-handler'
-import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
+import { List, FAB } from 'react-native-paper'
 
 import { fetchMember } from '../api'
 import { makeCollectionListItem, sortCompareNumber } from '../utils'
@@ -10,9 +10,14 @@ import { makeCollectionListItem, sortCompareNumber } from '../utils'
 import { CommonActions } from '@react-navigation/native'
 
 function CollectionsScreen ({
-  navigation, username, members,
-  workspaces, collections, fetchPendingIds, ...props
+  navigation, username, members, workspace,
+  workspaces, collections, fetchPendingIds, route, ...props
 }) {
+
+  const [open, setOpen] = useState(false)
+
+  const { workspaceId } = route.params
+
   const onRefresh = () => {
     const { fetchMember } = props
     fetchMember(username)
@@ -43,8 +48,39 @@ function CollectionsScreen ({
     )
   }
 
+  // dummie function
+  const leaveWorkspace = (workspaceId) => {
+    console.log('You have left the workspace')
+  }
+
+  const handleLeaveWorkspace = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'Workspaces'
+      })
+    )
+    leaveWorkspace(workspaceId)
+  }
+
+  const handleRemoveMember = (username) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'RemoveMemberFromWorkspace'
+      })
+    )
+  }
+
+  const handleAddUser = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'InviteUserToWorkspace'
+      })
+    )
+  }
+
   const member = members.membersByUsername[username]
   const collectionIdNameMap = member.collections
+  //const workspaceSpesificCollections = collectionIdNameMap.includes()
   const sortedCollectionPairs = Object.keys(collectionIdNameMap)
     .sort(sortCompareNumber(e => e[0])).map((id, _) => [id, collectionIdNameMap[id]])
   console.log(sortedCollectionPairs)
@@ -68,7 +104,10 @@ function CollectionsScreen ({
               return makeCollectionListItem(id, name, name, {
                 onPress: e => {
                   navigation.dispatch(
-                    CommonActions.navigate({ name: 'Collection', params: { collectionId: id } })
+                    CommonActions.navigate({ 
+                      name: 'Collection', 
+                      params: { collectionId: id } 
+                    })
                   )
                 }
               })
@@ -77,12 +116,23 @@ function CollectionsScreen ({
           }
         </List.Section>
       </ScrollView>
-
-      <FAButton
+      <FAB.Group
+        open={open}
+        icon={open ? 'menu-up' : 'menu-down'}
+        actions={[
+          { icon: 'playlist-plus', label: 'Opprett handleliste', onPress: () => { handleCreateNewCollection() } },
+          { icon: 'account-plus', label: 'Legg til meldlem i workspace', onPress: () => { handleAddUser() } },
+          { icon: 'account-minus', label: 'Fjern medlem fra workspace', onPress: () => { handleRemoveMember() } },
+          // denne gjelder vel bare dersom USERID!=THIS.CREATERID
+          { icon: 'playlist-remove', label: 'Forlat workspace', onPress: () => { handleLeaveWorkspace() } },
+        ]}
+        onStateChange={() => setOpen(!open)}
+        visible={true}
+      /* <FAButton
         style={styles.fab}
         medium
         icon='plus'
-        onPress={handleCreateNewCollection}
+        onPress={handleCreateNewCollection} */
       />
     </>
   )

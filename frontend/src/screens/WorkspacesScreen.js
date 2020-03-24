@@ -81,15 +81,15 @@ function WorkspacesScreen ({ navigation, ...props }) {
   // Display a popup message instructing the user to create a new
   // workspace when they have none.
   const noWorkspacesPopup = sortedWorkspaces.length <= 0 &&
-  (
-    <PopupInfoBanner
-      visible
-      confirmLabel=''
-      message='Create a new workspace by pressing the plus button'
-      ignoreLabel='Dismiss'
-      icon='exclamation'
-    />
-  )
+    (
+      <PopupInfoBanner
+        visible
+        confirmLabel=''
+        message='Create a new workspace by pressing the plus button'
+        ignoreLabel='Dismiss'
+        icon='exclamation'
+      />
+    )
 
   return (
     <>
