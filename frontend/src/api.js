@@ -284,6 +284,10 @@ export const fetchMember = (username) => {
 
 // TODO: redux?
 export const authCreateUser = (username, password) => {
-  fetch(BASE_URL + 'create_user/', { method: 'POST', body: { username, password } })
-    .then(() => { console.log('CREATED USER') })
+  fetch(BASE_URL + 'create_user/', {
+    method: 'POST',
+    headers: { 'Content-type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  })
+    .then((data) => { console.log(data.json()); console.log('CREATED USER') })
 }
