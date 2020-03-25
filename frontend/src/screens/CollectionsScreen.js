@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, RefreshControl } from 'react-native'
+import { RefreshControl } from 'react-native'
 import { connect } from 'react-redux'
 import { ScrollView } from 'react-native-gesture-handler'
-import { List, FAB } from 'react-native-paper'
+import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
 
 import { fetchMember } from '../api'
 import { makeCollectionListItem, sortCompareNumber } from '../utils'
@@ -10,13 +10,17 @@ import { makeCollectionListItem, sortCompareNumber } from '../utils'
 import { CommonActions } from '@react-navigation/native'
 
 function CollectionsScreen ({
-  navigation, username, members, workspace,
-  workspaces, collections, fetchPendingIds, route, ...props
+  navigation, username, members, workspaces, collections,
+  fetchPendingIds, route, ...props
 }) {
-
   const [open, setOpen] = useState(false)
 
-  const { workspaceId } = route.params
+  const workspaceId = route.params
+  const isWorkspaceSpecific = workspaceId != null
+  let workspace = null
+  if (isWorkspaceSpecific) workspace = workspaces.workspacesById[workspaceId]
+
+  const isOwnerOfSpecificWorkspace = workspace && workspace.owner === username
 
   const onRefresh = () => {
     const { fetchMember } = props
@@ -31,29 +35,23 @@ function CollectionsScreen ({
     return <ActivityIndicator animating color='#FF0000' />
   }
 
-  const styles = StyleSheet.create({
-    fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0
-    }
-  })
-
   const handleCreateNewCollection = () => {
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'CreateCollection'
+        name: 'CreateCollection',
+        params: isWorkspaceSpecific ? { workspaceId } : { }
       })
     )
   }
 
   // dummie function
   const leaveWorkspace = (workspaceId) => {
+    if (!isWorkspaceSpecific) return
     console.log('You have left the workspace')
   }
 
   const handleLeaveWorkspace = () => {
+    if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
         name: 'Workspaces'
@@ -63,6 +61,7 @@ function CollectionsScreen ({
   }
 
   const handleRemoveMember = (username) => {
+    if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
         name: 'RemoveMemberFromWorkspace'
@@ -71,6 +70,7 @@ function CollectionsScreen ({
   }
 
   const handleAddUser = () => {
+    if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
         name: 'InviteUserToWorkspace'
@@ -80,10 +80,23 @@ function CollectionsScreen ({
 
   const member = members.membersByUsername[username]
   const collectionIdNameMap = member.collections
-  //const workspaceSpesificCollections = collectionIdNameMap.includes()
+  // const workspaceSpesificCollections = collectionIdNameMap.includes()
   const sortedCollectionPairs = Object.keys(collectionIdNameMap)
     .sort(sortCompareNumber(e => e[0])).map((id, _) => [id, collectionIdNameMap[id]])
   console.log(sortedCollectionPairs)
+
+  const actions = [
+    { icon: 'playlist-plus', label: 'Opprett handleliste', onPress: () => { handleCreateNewCollection() } }
+  ]
+
+  if (isWorkspaceSpecific) {
+    if (isOwnerOfSpecificWorkspace) {
+      actions.push({ icon: 'account-plus', label: 'Legg til meldlem i workspace', onPress: () => { handleAddUser() } })
+      actions.push({ icon: 'account-minus', label: 'Fjern medlem fra workspace', onPress: () => { handleRemoveMember() } })
+    } else {
+      actions.push({ icon: 'playlist-remove', label: 'Forlat workspace', onPress: () => { handleLeaveWorkspace() } })
+    }
+  }
 
   return (
     <>
@@ -104,9 +117,9 @@ function CollectionsScreen ({
               return makeCollectionListItem(id, name, name, {
                 onPress: e => {
                   navigation.dispatch(
-                    CommonActions.navigate({ 
-                      name: 'Collection', 
-                      params: { collectionId: id } 
+                    CommonActions.navigate({
+                      name: 'Collection',
+                      params: { collectionId: id }
                     })
                   )
                 }
@@ -116,23 +129,12 @@ function CollectionsScreen ({
           }
         </List.Section>
       </ScrollView>
-      <FAB.Group
+      <FAButton.Group
         open={open}
         icon={open ? 'menu-up' : 'menu-down'}
-        actions={[
-          { icon: 'playlist-plus', label: 'Opprett handleliste', onPress: () => { handleCreateNewCollection() } },
-          { icon: 'account-plus', label: 'Legg til meldlem i workspace', onPress: () => { handleAddUser() } },
-          { icon: 'account-minus', label: 'Fjern medlem fra workspace', onPress: () => { handleRemoveMember() } },
-          // denne gjelder vel bare dersom USERID!=THIS.CREATERID
-          { icon: 'playlist-remove', label: 'Forlat workspace', onPress: () => { handleLeaveWorkspace() } },
-        ]}
+        actions={actions}
         onStateChange={() => setOpen(!open)}
-        visible={true}
-      /* <FAButton
-        style={styles.fab}
-        medium
-        icon='plus'
-        onPress={handleCreateNewCollection} */
+        visible
       />
     </>
   )

@@ -106,15 +106,22 @@ function WorkspacesScreen ({ navigation, ...props }) {
           <List.Subheader>Your workspaces</List.Subheader>
           {/* Just map the workspaceId-name list created above to
                the cooresponding workspace item components. */}
-          {sortedWorkspaces.map(([workspaceId, name], index) => {
-            return makeWorkspaceListItem(workspaceId, name, {
-              onPress: e => {
-                navigation.dispatch(
-                  CommonActions.navigate({ name: 'InviteUserWorkspace', params: { workspaceId } })
-                )
-              }
-            })
-          })}
+          {
+            sortedWorkspaces.map(([wsId, name], index) => {
+              return makeWorkspaceListItem(wsId, name, {
+                onPress: e => {
+                  console.log('ON PRESS ITEM')
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: 'WorkspaceCollections',
+                      params: { workspaceId: wsId }
+                    })
+                  )
+                }
+              })
+            }
+            )
+          }
         </List.Section>
       </ScrollView>
 

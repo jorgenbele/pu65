@@ -15,7 +15,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
 
   // collectionId is passed by the navigation system. See the onPress
   // anonymous function in makeCollectionListItem() in CollectionsScreen.js
-  const { collectionId } = route.params
+  const { username, collectionId } = route.params
 
   const onRefresh = () => {
     const { fetchCollection } = props
@@ -32,6 +32,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
   }
 
   const collection = collections.collectionsById[collectionId]
+  const isOwnerOfCollection = collection.added_by === username
   const { items } = collection
 
   const handleAddItem = () => {
@@ -80,6 +81,14 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
 
   const { updateItemOfCollection } = props
 
+  const actions = [{ icon: 'plus', label: 'Legg til produkt', onPress: () => { handleAddItem() } }]
+
+  if (isOwnerOfCollection) {
+    actions.push({ icon: 'account-switch', label: 'Legg til medlem', onPress: () => { handleAddMember() } })
+  } else {
+    actions.push({ icon: 'playlist-remove', label: 'Forlat handleliste', onPress: () => { handleLeaveCollection() } })
+  }
+
   return (
     <>
       <ScrollView
@@ -117,11 +126,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
       <FloatingActionButton.Group
         open={open}
         icon={open ? 'menu-up' : 'menu-down'}
-        actions={[
-          { icon: 'plus', label: 'Legg til produkt', onPress: () => { handleAddItem() } },
-          { icon: 'account-switch', label: 'Legg til medlem', onPress: () => { handleAddMember() } },
-          { icon: 'playlist-remove', label: 'Forlat handleliste', onPress: () => { handleLeaveCollection() } }
-        ]}
+        actions={actions}
         onStateChange={() => setOpen(!open)}
         visible
       />
@@ -133,6 +138,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
 CollectionScreen.defaultProps = {}
 
 const mapStateToProps = state => ({
+  username: state.auth.username,
   collections: state.collections
 })
 
