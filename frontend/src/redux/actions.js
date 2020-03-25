@@ -82,7 +82,7 @@ export function createWorkspaceError (failedWorkspaceName, error) {
 }
 
 export function fetchWorkspacePending (workspaceId) {
-  return { type: WORKSPACE.FETCH_PENDING }
+  return { type: WORKSPACE.FETCH_PENDING, payload: { workspaceId } }
 }
 
 export function fetchWorkspaceSuccess (workspace) {

@@ -4,31 +4,37 @@ import { connect } from 'react-redux'
 import { ScrollView } from 'react-native-gesture-handler'
 import { List, FAB as FAButton, ActivityIndicator } from 'react-native-paper'
 
-import { fetchMember } from '../api'
+import { fetchMember, fetchWorkspace, leaveWorkspace } from '../api'
 import { makeCollectionListItem, sortCompareNumber } from '../utils'
 
 import { CommonActions } from '@react-navigation/native'
 
 function CollectionsScreen ({
-  navigation, username, members, workspaces, collections,
-  fetchPendingIds, route, ...props
+  navigation, route, 
+  username, members, workspaces, collections,
+  fetchMember, fetchWorkspace, leaveWorkspace,
+  ...props
 }) {
+
+  console.log('collectionsscreen: ', workspaces)
+
   const [open, setOpen] = useState(false)
 
-  const workspaceId = route.params
-  const isWorkspaceSpecific = workspaceId != null
-  let workspace = null
-  if (isWorkspaceSpecific) workspace = workspaces.workspacesById[workspaceId]
-
-  const isOwnerOfSpecificWorkspace = workspace && workspace.owner === username
-
+  const { workspaceId } = route.params
   const onRefresh = () => {
-    const { fetchMember } = props
     fetchMember(username)
+    fetchWorkspace(workspaceId)
   }
   useEffect(() => { onRefresh() }, [])
 
-  const isLoaded = () => username != null && (username in members.membersByUsername)
+  const isWorkspaceSpecific = !!workspaceId
+  let workspace = null
+  if (isWorkspaceSpecific) workspace = workspaces.workspacesById[workspaceId]
+  console.log('workspace', workspace)
+
+  const isOwnerOfSpecificWorkspace = (workspace) => workspace && workspace.owner === username
+
+  const isLoaded = () => username != null && (username in members.membersByUsername) && (!isWorkspaceSpecific || workspaceId in workspaces.workspacesById)
   const isRefreshing = () => members.fetchPendingUsernames.has(username)
 
   if (!isLoaded()) {
@@ -44,17 +50,12 @@ function CollectionsScreen ({
     )
   }
 
-  // dummie function
-  const leaveWorkspace = (workspaceId) => {
-    if (!isWorkspaceSpecific) return
-    console.log('You have left the workspace')
-  }
-
   const handleLeaveWorkspace = () => {
     if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'Workspaces'
+        name: 'Workspaces',
+        params: { workspace, workspaceId }
       })
     )
     leaveWorkspace(workspaceId)
@@ -64,7 +65,8 @@ function CollectionsScreen ({
     if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'RemoveMemberFromWorkspace'
+        name: 'RemoveMemberFromWorkspace',
+        params: { workspace, workspaceId }
       })
     )
   }
@@ -73,7 +75,8 @@ function CollectionsScreen ({
     if (!isWorkspaceSpecific) return
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'InviteUserToWorkspace'
+        name: 'InviteUserWorkspace',
+        params: { workspace, workspaceId }
       })
     )
   }
@@ -155,7 +158,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  fetchMember
+  fetchMember,
+  fetchWorkspace,
+  leaveWorkspace
 }
 
 const ConnectedCollectionsScreen = connect(mapStateToProps, mapDispatchToProps)(CollectionsScreen)

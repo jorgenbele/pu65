@@ -1,31 +1,37 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 
-import { Headline, HelperText } from 'react-native-paper'
-import { View, TextInput, Button } from 'react-native'
+import { Headline, HelperText, TextInput, Button } from 'react-native-paper'
+import { View } from 'react-native'
 
-import { removeMemberWorkspace } from '../api'
+import { removeFromWorkspace } from '../api'
 
-function RemoveMemberWorkspaceForm ({ navigation, route, removeMemberWorkspace, ...props }) {
+function RemoveMemberWorkspaceForm ({ navigation, route, removeFromWorkspace, ...props }) {
   const [username, setUsername] = useState('')
+  const [isRemoving, setIsRemoving] = useState(false)
 
-  const { added } = props
-  const myWorkspaceID = ''
-  const [, setPendingInvites] = useState([[]])  //Må endre her
+  const { pending, errors } = props
+  const { workspace, workspaceId } = route.params
 
-  const handleToggleMemberRemove = (username) => {
-    removeMemberWorkspace(myWorkspaceID, username)
-    setPendingInvites(prevPendingInvites => {   //Må endre her
-      return [...prevPendingInvites, [myWorkspaceID, username]]
-    })
-    // Do something when members are added to the workspace.
-    // use the workspace ID i am in. Get that from props?
+  const handleRemoveMember = (username) => {
+    removeFromWorkspace(workspace, username)
+    setIsRemoving(true)
   }
+
+  const removed = () => {
+    return isRemoving && [workspaceId, username] in pending
+  }
+
+  const error = () => {
+    return isRemoving && [workspaceId, username] in errors
+  }
+
+  console.log('REMOVING FROM ', workspace)
 
   return (
     <View>
       <Headline>
-        Remove member from this workspace
+        Remove member from the {workspace.name} workspace
       </Headline>
 
       <TextInput
@@ -36,23 +42,23 @@ function RemoveMemberWorkspaceForm ({ navigation, route, removeMemberWorkspace, 
 
       <Button
         mode='contained' onPress={() => {
-          console.log(username)
-          handleToggleMemberRemove(username)
-          console.log('Pressed')
+          handleRemoveMember(username)
+          console.log(pending)
+          console.log(errors)
         }}
       >
-        Add user
+        Remove user from workspace
       </Button>
       <HelperText
         type='info'
-        visible={removed}
+        visible={removed()}
         style={{ fontSize: 25, color: '#BA8CDF', textAlign: 'center' }}
       >
           You successfully removed this user!
       </HelperText>
       <HelperText
         type='info'
-        visible={!added && username !== ''}
+        visible={error()}
         style={{ fontSize: 25, color: '#BA8CDF', textAlign: 'center' }}
       >
           Not a valid member!
@@ -63,11 +69,9 @@ function RemoveMemberWorkspaceForm ({ navigation, route, removeMemberWorkspace, 
 }
 
 const mapStateToProps = state => ({
-// have to take in members as prop
-  removed: state.removeMemberWorkspacesState
-
+  pending: state.workspaces.removePendingByIdUsername,
+  errors: state.workspaces.removeErrorsByIdUsername
 })
-const mapDispatchToProps = { removeMemberWorkspace }
+const mapDispatchToProps = { removeFromWorkspace }
 
-const ConnectedWorkspacesCreateForm = connect(mapStateToProps, mapDispatchToProps)(RemoveMemberWorkspaceForm)
-export default ConnectedWorkspacesCreateForm //Hva gjør denne?
+export default connect(mapStateToProps, mapDispatchToProps)(RemoveMemberWorkspaceForm)

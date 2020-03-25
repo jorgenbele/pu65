@@ -139,12 +139,12 @@ export function authLogout (token) {
 // with the given workspace.
 export const fetchWorkspace = (workspaceId) => {
   return apiGet([WORKSPACES_PATH, workspaceId],
-    withDispatch(fetchWorkspacePending.bind(workspaceId)),
-    (dispatch, getState, data) =>
-      dispatch(fetchWorkspaceSuccess(
-        data.map(w => ({ ...w, isOwner: (w.members[w.owner] === getState().auth.username) }))
-      )),
-    withDispatch(fetchWorkspaceError.bind(null, this)))
+    withDispatch(fetchWorkspacePending.bind(null, workspaceId)),
+    (dispatch, getState, data) => {
+      console.log('FETCH WORKSPACE SUCCESS', workspaceId, data)
+      dispatch(fetchWorkspaceSuccess(data))
+    },
+    withDispatch(fetchWorkspaceError.bind(null, workspaceId)))
 }
 
 // createWorkspace is similar to fetchWorkspace, but
