@@ -60,7 +60,8 @@ const CollectionScreen = ({
   const workspace = workspaces.workspacesById[collection.workspace.id]
   // console.log(workspace)
 
-  const isOwnerOfCollection = collection.added_by === username
+  console.log(collection)
+  const isOwnerOfCollection = collection.created_by === username
   const { items } = collection
 
   const handleAddItem = () => {

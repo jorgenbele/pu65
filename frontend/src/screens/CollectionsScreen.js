@@ -19,7 +19,8 @@ function CollectionsScreen ({
 
   const [open, setOpen] = useState(false)
 
-  const { workspaceId } = route.params
+  const workspaceId = route.params && route.params.workspaceId
+
   const onRefresh = () => {
     fetchMember(username)
     fetchWorkspace(workspaceId)
