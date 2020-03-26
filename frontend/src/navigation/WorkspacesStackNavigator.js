@@ -12,7 +12,6 @@ import CollectionCreateForm from '../components/CollectionCreateForm'
 import CollectionAddItemForm from '../components/CollectionAddItemForm'
 import CollectionManageWSMemberForm from '../components/CollectionManageWSMemberForm'
 
-
 const Stack = createStackNavigator()
 
 function WorkspacesStackNavigator () {

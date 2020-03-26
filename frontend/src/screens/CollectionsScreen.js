@@ -10,12 +10,11 @@ import { makeCollectionListItem, sortCompareNumber } from '../utils'
 import { CommonActions } from '@react-navigation/native'
 
 function CollectionsScreen ({
-  navigation, route, 
+  navigation, route,
   username, members, workspaces, collections,
   fetchMember, fetchWorkspace, leaveWorkspace,
   ...props
 }) {
-
   console.log('collectionsscreen: ', workspaces)
 
   const [open, setOpen] = useState(false)

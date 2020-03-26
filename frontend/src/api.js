@@ -45,7 +45,7 @@ const headersFromOptions = (getState, options) => {
   }
   return new Headers({
     'Content-type': 'application/json',
-  ...authorizationToken(getState())
+    ...authorizationToken(getState())
   })
 }
 
