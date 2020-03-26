@@ -85,6 +85,7 @@ function CollectionsScreen ({
   const collectionIdNameMap = member.collections
   // const workspaceSpesificCollections = collectionIdNameMap.includes()
   const sortedCollectionPairs = Object.keys(collectionIdNameMap)
+    .filter(id => (isWorkspaceSpecific ? id in workspace.collections : true))
     .sort(sortCompareNumber(e => e[0])).map((id, _) => [id, collectionIdNameMap[id]])
   console.log(sortedCollectionPairs)
 
