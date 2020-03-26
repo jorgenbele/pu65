@@ -1,37 +1,65 @@
 import React, { useEffect, useState } from 'react'
 import { RefreshControl, ScrollView } from 'react-native'
-import { List, ActivityIndicator, FAB as FloatingActionButton } from 'react-native-paper'
+import { List, ActivityIndicator, FAB as FloatingActionButton, Dialog, Paragraph } from 'react-native-paper'
 
 import { connect } from 'react-redux'
 import { CommonActions } from '@react-navigation/native'
 
-import { updateItemOfCollection, fetchCollection } from '../api'
+import { updateItemOfCollection, fetchCollectionAndWorkspace, fetchCollection, fetchWorkspace } from '../api'
 import { makeCollectionItem, sortCompareNumber } from '../utils'
 
-import { STATE_BOUGHT, STATE_ADDED } from '../constants/ItemStates'
+import { STATE_BOUGHT, STATE_ADDED, STATE_CANCELLED } from '../constants/ItemStates'
 
-const CollectionScreen = ({ navigation, collections, route, ...props }) => {
+import store from '../redux/store'
+
+import {
+  fetchWorkspaceSuccess, fetchWorkspacePending,
+  fetchCollectionSuccess, fetchCollectionPending
+} from '../redux/actions'
+
+const CollectionScreen = ({
+  navigation, route,
+  collections, workspaces,
+  fetchCollectionSuccess, fetchWorkspaceSuccess,
+  fetchCollection, fetchWorkspace, fetchCollectionPending,
+  fetchWorkspacePending,
+  ...props
+}) => {
   const [open, setOpen] = useState(false)
+  const [showDialog, setShowDialog] = useState(false)
+  const [dialogMsg, setDialogMsg] = useState('')
 
   // collectionId is passed by the navigation system. See the onPress
   // anonymous function in makeCollectionListItem() in CollectionsScreen.js
-  const { username, collectionId } = route.params
+  const { collectionId } = route.params
+  const { username } = props
 
-  const onRefresh = () => {
-    const { fetchCollection } = props
-    fetchCollection(collectionId)
+  const onRefresh = async () => {
+    fetchCollectionPending(collectionId)
+    const [collection, workspace] = await fetchCollectionAndWorkspace(store.getState(), collectionId)
+    fetchWorkspacePending(workspace.id)
+    fetchWorkspaceSuccess(workspace)
+    fetchCollectionSuccess(collection)
   }
 
   useEffect(() => { onRefresh() }, [])
-
-  const isLoaded = () => (collectionId != null && (collectionId in collections.collectionsById))
+  const isLoaded = () => (collectionId != null && collectionId in collections.collectionsById)
   const isRefreshing = () => (collectionId in collections.fetchPendingIds)
 
   if (!isLoaded()) {
+    console.log('loading')
     return <ActivityIndicator animating color='#FF0000' />
   }
 
+  // console.log('got colllection and workspace')
+  console.log(collections)
+
+  // console.log()
   const collection = collections.collectionsById[collectionId]
+  // console.log('collection:', collection)
+  const workspace = workspaces.workspacesById[collection.workspace.id]
+  // console.log(workspace)
+
   const isOwnerOfCollection = collection.added_by === username
   const { items } = collection
 
@@ -39,7 +67,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'AddItemToCollection',
-        params: { collection }
+        params: { collectionId, collection }
       })
     )
   }
@@ -48,7 +76,7 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
     navigation.dispatch(
       CommonActions.navigate({
         name: 'AddMember',
-        params: { collection }
+        params: { collectionId, collection }
       })
     )
   }
@@ -75,9 +103,26 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
     })
   }
 
+  const handleRemoveItem = (item) => {
+    console.log('=== REMOVE ITEM ===')
+    console.log(workspace)
+    console.log(collection)
+    console.log(username)
+
+    // The check is done in backend too, but this removes the need for a round-trip to the backend
+    if (item.added_by !== username || workspace.members[workspace.owner] !== username || collection.created_by !== username) {
+      setDialogMsg('You cannot remove this item because you are not the owner of the item, collection or workspace')
+      setShowDialog(true)
+      return
+    }
+    updateItemOfCollection(collectionId, { ...item, state: STATE_CANCELLED })
+    setDialogMsg('Removed item ' + item.name + ' from collection ' + collection.name)
+    setShowDialog(true)
+  }
+
   const sortedItems = items.sort(sortCompareNumber(e => e.id))
   const boughtItems = sortedItems.filter(item => item.state === STATE_BOUGHT)
-  const otherItems = sortedItems.filter(item => item.state !== STATE_BOUGHT)
+  const otherItems = sortedItems.filter(item => item.state === STATE_ADDED)
 
   const { updateItemOfCollection } = props
 
@@ -118,11 +163,23 @@ const CollectionScreen = ({ navigation, collections, route, ...props }) => {
             const checkmark = item.state === STATE_BOUGHT
             return makeCollectionItem(item, {
               checkmark,
-              onPress: e => handleToggleItemState(item)
+              onPress: e => handleToggleItemState(item),
+              onLongPress: e => handleRemoveItem(item)
             })
           })}
         </List.Section>
       </ScrollView>
+
+      <Dialog
+        visible={showDialog}
+        onDismiss={() => { setShowDialog(false) }}
+      >
+        <Dialog.Title>Alert</Dialog.Title>
+        <Dialog.Content>
+          <Paragraph>{dialogMsg}</Paragraph>
+        </Dialog.Content>
+      </Dialog>
+
       <FloatingActionButton.Group
         open={open}
         icon={open ? 'menu-up' : 'menu-down'}
@@ -139,11 +196,18 @@ CollectionScreen.defaultProps = {}
 
 const mapStateToProps = state => ({
   username: state.auth.username,
-  collections: state.collections
+  collections: state.collections,
+  workspaces: state.workspaces
 })
 
 const mapDispatchToProps = {
   updateItemOfCollection,
+  fetchCollectionSuccess,
+  fetchWorkspaceSuccess,
+  fetchCollectionPending,
+  fetchWorkspacePending,
+
+  fetchWorkspace,
   fetchCollection
 }
 

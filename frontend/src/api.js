@@ -45,7 +45,7 @@ const headersFromOptions = (getState, options) => {
   }
   return new Headers({
     'Content-type': 'application/json',
-    ...authorizationToken(getState())
+  ...authorizationToken(getState())
   })
 }
 
@@ -143,8 +143,48 @@ export const fetchWorkspace = (workspaceId) => {
     (dispatch, getState, data) => {
       console.log('FETCH WORKSPACE SUCCESS', workspaceId, data)
       dispatch(fetchWorkspaceSuccess(data))
+      // data.map(w => ({ ...w, isOwner: (w.members[w.owner] === getState().auth.username) }))
+      // ))
     },
     withDispatch(fetchWorkspaceError.bind(null, workspaceId)))
+}
+
+export const fetchCollectionAndWorkspace = async (state, collectionId) => {
+  const endpoints = [COLLECTIONS_PATH, collectionId]
+  let url = BASE_URL + endpoints.join('/')
+  if (!url.endsWith('/')) url = url + '/'
+  console.log(url)
+
+  try {
+    console.log('awaiting fetch')
+    const collection = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authorizationToken(state)
+      }
+    }).then(data => data.json())
+    console.log('collection: ')
+    console.log(collection)
+
+    const workspaceEndpoints = [WORKSPACES_PATH, collection.workspace.id]
+    let workspaceUrl = BASE_URL + workspaceEndpoints.join('/')
+    if (!workspaceUrl.endsWith('/')) workspaceUrl = workspaceUrl + '/'
+    console.log(workspaceUrl)
+    const workspace = await fetch(workspaceUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authorizationToken(state)
+      }
+    }).then(data => data.json())
+    console.log('workspace ')
+    console.log(workspace)
+
+    return [collection, workspace]
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 // createWorkspace is similar to fetchWorkspace, but
