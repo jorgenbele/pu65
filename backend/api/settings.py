@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',  # needed to use Django REST Framework
     'rest_framework.authtoken',  # Django REST Framework Authentication using tokens
     'app',
+    'django_nose',
 ]
 
 REST_FRAMEWORK = {
@@ -48,6 +49,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=app',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

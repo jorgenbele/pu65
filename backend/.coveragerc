@@ -1,0 +1,11 @@
+[run]
+ omit =
+  manage.py
+  *models.py*
+  *permissions.py*
+
+[report]
+ omit =
+  manage.py
+  *models.py*
+  *permissions.py*
