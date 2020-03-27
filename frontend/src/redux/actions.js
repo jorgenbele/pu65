@@ -69,6 +69,18 @@ export function inviteMemberToCollectionError (collectionId, username, inviteErr
   return { type: COLLECTION.INVITE_MEMBER_TO_COLLECTION_ERROR, payload: { collectionId, username, inviteError } }
 }
 
+export function leaveCollectionPending (collectionId) {
+  return { type: COLLECTION.LEAVE_COLLECTION_PENDING, payload: { collectionId } }
+}
+
+export function leaveCollectionSuccess (collectionId) {
+  return { type: COLLECTION.LEAVE_COLLECTION_SUCCESS, payload: { collectionId } }
+}
+
+export function leaveCollectionError (collectionId, error) {
+  return { type: COLLECTION.LEAVE_COLLECTION_ERROR, payload: { collectionId, error } }
+}
+
 export function createWorkspacePending (workspaceName) {
   return { type: WORKSPACE.CREATE_PENDING, payload: { workspaceName } }
 }
@@ -177,8 +189,16 @@ export function addMemberWorkspacesState (username, workspace) {
   return { type: MEMBERS.ADD_MEMBER_WORKSPACE, payload: { username, workspace } }
 }
 
+export function removeMemberWorkspacesState (username, workspaceId) {
+  return { type: MEMBERS.REMOVE_MEMBER_WORKSPACE, payload: { username, workspaceId } }
+}
+
 // update the state of the members.workspacesById field with
 // the given collection
 export function addMemberCollectionsState (username, collection) {
   return { type: MEMBERS.ADD_MEMBER_COLLECTION, payload: { username, collection } }
+}
+
+export function removeMemberCollectionsState (username, collectionId) {
+  return { type: MEMBERS.REMOVE_MEMBER_COLLECTION, payload: { username, collectionId } }
 }

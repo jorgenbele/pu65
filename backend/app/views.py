@@ -304,6 +304,36 @@ def collection_invite(request, pk, username):
 @api_view([
     'POST',
 ])
+@permission_classes([IsAuthenticated])
+def collection_leave(request, pk):
+    try:
+        member = Member.objects.get(pk=request.user.pk)
+        collection = Collection.objects.get(pk=pk)
+
+        if request.method == 'POST':
+            if not member.joined_collections.filter(pk=pk).exists():
+                return Response(
+                    data={'failure': 'not a member of the collection'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            member.joined_collections.remove(pk)
+            member.save()
+
+            data = {
+                'success':
+                f'removed user {member.username} from collection {pk}'
+            }
+            return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={'failure': 'USE POST'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response(data={'failure': 'not logged in or something'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view([
+    'POST',
+])
 @permission_classes([IsAuthenticated, IsWorkspaceMember])
 def workspace_invite(request, pk, username):
     try:

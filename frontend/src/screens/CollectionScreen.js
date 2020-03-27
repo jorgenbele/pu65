@@ -5,7 +5,7 @@ import { List, ActivityIndicator, FAB as FloatingActionButton, Dialog, Paragraph
 import { connect } from 'react-redux'
 import { CommonActions } from '@react-navigation/native'
 
-import { updateItemOfCollection, fetchCollectionAndWorkspace, fetchCollection, fetchWorkspace } from '../api'
+import { updateItemOfCollection, fetchCollectionAndWorkspace, fetchCollection, fetchWorkspace, leaveCollection } from '../api'
 import { makeCollectionItem, sortCompareNumber } from '../utils'
 
 import { STATE_BOUGHT, STATE_ADDED, STATE_CANCELLED } from '../constants/ItemStates'
@@ -23,6 +23,7 @@ const CollectionScreen = ({
   fetchCollectionSuccess, fetchWorkspaceSuccess,
   fetchCollection, fetchWorkspace, fetchCollectionPending,
   fetchWorkspacePending,
+  leaveCollection,
   ...props
 }) => {
   const [open, setOpen] = useState(false)
@@ -82,11 +83,6 @@ const CollectionScreen = ({
     )
   }
 
-  // dummie function
-  const leaveCollection = (collectionId) => {
-    console.log('You have left the collection')
-  }
-
   const handleLeaveCollection = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -111,7 +107,7 @@ const CollectionScreen = ({
     console.log(username)
 
     // The check is done in backend too, but this removes the need for a round-trip to the backend
-    if (item.added_by !== username || workspace.members[workspace.owner] !== username || collection.created_by !== username) {
+    if (item.added_by !== username && workspace.members[workspace.owner] !== username && collection.created_by !== username) {
       setDialogMsg('You cannot remove this item because you are not the owner of the item, collection or workspace')
       setShowDialog(true)
       return
@@ -209,7 +205,9 @@ const mapDispatchToProps = {
   fetchWorkspacePending,
 
   fetchWorkspace,
-  fetchCollection
+  fetchCollection,
+
+  leaveCollection
 }
 
 const ConnectedCollectionScreen = connect(mapStateToProps, mapDispatchToProps)(CollectionScreen)

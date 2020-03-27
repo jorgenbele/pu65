@@ -10,7 +10,8 @@ import {
   createWorkspaceSuccess, createWorkspacePending, createWorkspaceError,
 
   fetchWorkspaceSuccess, fetchWorkspacePending, fetchWorkspaceError,
-  addMemberWorkspacesState, addMemberCollectionsState,
+  addMemberWorkspacesState, removeMemberWorkspacesState,
+  addMemberCollectionsState, removeMemberCollectionsState,
   inviteMemberWorkspaceSuccess, inviteMemberWorkspacePending, inviteMemberWorkspaceError,
   leaveWorkspaceSuccess, leaveWorkspacePending, leaveWorkspaceError,
   removeFromWorkspaceSuccess, removeFromWorkspacePending, removeFromWorkspaceError,
@@ -21,6 +22,7 @@ import {
   addItemToCollectionSuccess, addItemToCollectionPending, addItemToCollectionError,
   updateItemOfCollectionSuccess, updateItemOfCollectionPending, updateItemOfCollectionError,
   inviteMemberToCollectionSuccess, inviteMemberToCollectionPending, inviteMemberToCollectionError,
+  leaveCollectionSuccess, leaveCollectionPending, leaveCollectionError,
 
   fetchMemberSuccess, fetchMemberPending, fetchMemberError, authLogoutPending,
 
@@ -225,9 +227,11 @@ export const inviteMemberWorkspace = (workspaceId, username) => {
 export const leaveWorkspace = (workspaceId) => {
   return apiPost([WORKSPACES_PATH, workspaceId, 'leave'],
     withDispatch(leaveWorkspacePending.bind(null, workspaceId)),
-    (dispatch, _, data) => {
-      if (data.success) dispatch(leaveWorkspaceSuccess(workspaceId, data))
-      else dispatch(leaveWorkspaceError(workspaceId, data))
+    (dispatch, getState, data) => {
+      if (data.success) {
+        dispatch(leaveWorkspaceSuccess(workspaceId, data))
+        dispatch(removeMemberWorkspacesState(getState().auth.username, workspaceId))
+      } else dispatch(leaveWorkspaceError(workspaceId, data))
     },
     withDispatch(leaveWorkspaceError.bind(null, workspaceId)))
 }
@@ -238,9 +242,11 @@ export const leaveWorkspace = (workspaceId) => {
 export const removeFromWorkspace = (workspaceId, username) => {
   return apiPost([WORKSPACES_PATH, workspaceId, 'remove'],
     withDispatch(removeFromWorkspacePending.bind(null, workspaceId, username)),
-    (dispatch, _, data) => {
-      if (data.success) dispatch(removeFromWorkspaceSuccess(workspaceId, username, data))
-      else dispatch(removeFromWorkspaceError(workspaceId, username, data))
+    (dispatch, getState, data) => {
+      if (data.success) {
+        dispatch(removeFromWorkspaceSuccess(workspaceId, username, data))
+        dispatch(removeMemberWorkspacesState(username, workspaceId))
+      } else dispatch(removeFromWorkspaceError(workspaceId, username, data))
     },
     withDispatch(removeFromWorkspaceError.bind(null, workspaceId, username)))
 }
@@ -308,6 +314,20 @@ export const addItemToCollection = (collectionId, item) => {
     withDispatch(addItemToCollectionError.bind(null, collectionId, item)),
     { body: JSON.stringify(item) }
   )
+}
+
+// leaveCollection is used to invite a member given by its username
+// to a workspace with the given id.
+export const leaveCollection = (collectionId) => {
+  return apiPost([COLLECTIONS_PATH, collectionId, 'leave'],
+    withDispatch(leaveCollectionPending.bind(null, collectionId)),
+    (dispatch, getState, data) => {
+      if (data.success) {
+        dispatch(leaveCollectionSuccess(collectionId, data))
+        dispatch(removeMemberCollectionsState(getState().auth.username, collectionId))
+      } else dispatch(leaveCollectionError(collectionId, data))
+    },
+    withDispatch(leaveCollectionError.bind(null, collectionId)))
 }
 
 // fetchMember is used to fetch crucial information about a member,
