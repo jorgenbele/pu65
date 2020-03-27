@@ -16,6 +16,8 @@ yapf = "*"
 gunicorn = "*"
 dj-database-url = "*"
 psycopg2 = "*"
+django-nose = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"
