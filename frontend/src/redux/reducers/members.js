@@ -62,6 +62,27 @@ export default function (state = initialState, action) {
       }
     }
 
+    // When a user adds a workspace we want it to be added without
+    // fetching from backend
+    case MEMBERS.REMOVE_MEMBER_WORKSPACE: {
+      console.log('MEMBERS REMOVE MEMBER WORKSPACE')
+      const { workspace, username } = action.payload
+      const newWorkspaces = { ...state.membersByUsername[username].workspaces }
+      newWorkspaces.delete(workspace.id)
+
+      return {
+        ...state,
+        error: null,
+        membersByUsername: {
+          ...state.membersByUsername,
+          [username]: {
+            ...state.membersByUsername[username],
+            workspaces: newWorkspaces
+          }
+        }
+      }
+    }
+
     // When a user adds a collection we want it to be added without
     // fetching from backend
     case MEMBERS.ADD_MEMBER_COLLECTION: {
@@ -77,6 +98,27 @@ export default function (state = initialState, action) {
               ...state.membersByUsername[username].collections,
               [collection.id]: collection.name
             }
+          }
+        }
+      }
+    }
+
+    // When a user adds a collection we want it to be added without
+    // fetching from backend
+    case MEMBERS.REMOVE_MEMBER_COLLECTION: {
+      const { collectionId, username } = action.payload
+
+      const newCollections = { ...state.membersByUsername[username].collections }
+      newCollections.delete(collectionId)
+
+      return {
+        ...state,
+        error: null,
+        membersByUsername: {
+          ...state.membersByUsername,
+          [username]: {
+            ...state.membersByUsername[username],
+            collections: newCollections
           }
         }
       }

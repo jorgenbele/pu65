@@ -168,6 +168,28 @@ export default function (state = initialState, action) {
       return { ...state, invitePending, inviteError }
     }
 
+    // FIXME: not complete
+    case COLLECTION.LEAVE_COLLECTION_PENDING: {
+      // const { collectionId } = action.payload
+      return { ...state }
+    }
+
+    case COLLECTION.LEAVE_COLLECTION_SUCCESS: {
+      const { collectionId } = action.payload
+      console.log('left collection: ' + collectionId)
+      const newCollectionsById = { ...state.collectionsById }
+      newCollectionsById.delete(collectionId)
+      return {
+        ...state,
+        collectionsById: newCollectionsById
+      }
+    }
+
+    case COLLECTION.LEAVE_COLLECTION_ERROR: {
+      // const { error } = action.payload
+      return { ...state }
+    }
+
     default:
       return state
   }
