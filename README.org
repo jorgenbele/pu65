@@ -1,0 +1,18 @@
+#+TITLE:   ShopStop README
+#+DATE:    April 9, 2020
+#+SINCE:   v1.1.0
+#+STARTUP: inlineimages
+
+* Table of Contents :TOC_3:noexport:
+- [[#description][Description]]
+- [[#frontend][Frontend]]
+- [[#backend][Backend]]
+
+* Description
+An Expo app for shopping lists
+
+* Frontend
+#+INCLUDE: frontend/README.org
+
+* Backend
+#+INCLUDE: backend/README.org

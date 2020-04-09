@@ -1,10 +1,161 @@
-* README
-* Releases
-** Android
-Get the latest release [[https://drive.google.com/open?id=1uNPUIE5XjHD47W38s2xtfDjP51U3UchJ][here]]
-** iOS
-To be determined
-* Images
-[[./content/workspaces.png]]
-[[./content/lists.png]]
+#+TITLE:   ShopStop Expo Frontend
+#+DATE:    April 09, 2020
+#+SINCE:
+#+STARTUP: inlineimages
 
+* Table of Contents                                             :TOC_3:noexport:
+- [[#requirements][Requirements]]
+- [[#development-setup][Development setup]]
+  - [[#install-required-js-packages-using-yarn][Install required JS packages using yarn]]
+  - [[#configuration-url-of-backend-server-etc][Configuration (URL of backend server, etc.)]]
+  - [[#running-the-frontend-development-server-using-expo][Running the frontend development server using expo]]
+  - [[#code-formatting-standardjs][Code formatting (StandardJS)]]
+  - [[#testing][Testing]]
+  - [[#building-and-publishing][Building and publishing]]
+    - [[#setting-up-app-metadata-appjson][Setting up app metadata: app.json]]
+    - [[#publishing-to-expo-store][Publishing to Expo Store]]
+    - [[#building-for-android-apk][Building for Android (APK)]]
+    - [[#building-for-ios][Building for iOS]]
+    - [[#semi-automation-of-builds][(Semi-)Automation of builds]]
+- [[#releases][Releases]]
+  - [[#expo-store][Expo Store]]
+  - [[#android][Android]]
+  - [[#ios][iOS]]
+  - [[#other-releases][Other releases]]
+- [[#troubleshooting][Troubleshooting]]
+  - [[#the-app-doesnt-work-i-cant-login-create-user-etc][The app doesn't work, I can't login, create user etc..]]
+  - [[#i-dont-have-expoyarn-etc][I don't have expo/yarn etc.]]
+- [[#footnotes][Footnotes]]
+
+* Requirements
+- yarn (tested on version 1.2.4)
+- expo (tested on version 3.13.6), see dev. setup
+
+* Development setup
+
+** Install required JS packages using yarn
+In order to run the development server the javascript packages and build tools
+used have to be installed. These are installed using the following command:
+
+#+BEGIN_SRC sh
+# make sure you are in frontend/ when running these commands
+yarn install
+#+END_SRC
+
+#+RESULTS:
+| yarn  | install          | v1.22.4         |             |          |            |              |        |               |         |           |    |      |               |
+| [1/4] | Resolving        | packages...     |             |          |            |              |        |               |         |           |    |      |               |
+| [2/4] | Fetching         | packages...     |             |          |            |              |        |               |         |           |    |      |               |
+| info  | fsevents@1.2.11: | The             | platform    | linux    | is         | incompatible | with   | this          | module. |           |    |      |               |
+| info  | fsevents@1.2.11  | is              | an          | optional | dependency | and          | failed | compatibility | check.  | Excluding | it | from | installation. |
+| [3/4] | Linking          | dependencies... |             |          |            |              |        |               |         |           |    |      |               |
+| [4/4] | Building         | fresh           | packages... |          |            |              |        |               |         |           |    |      |               |
+| Done  | in               | 9.26s.          |             |          |            |              |        |               |         |           |    |      |               |
+
+** Configuration (URL of backend server, etc.)
+Modify the ~BASE_URL~ constant in ~frontend/src/constants/Urls.js~ to be the URL of the
+backend server. It will point to the staging backend server by default.
+No other configuration should be needed.
+
+** Running the frontend development server using expo
+To start the development server just run the following command and follow
+the instructions it will print out. It will guide you to running the debug
+application on your mobile phone with live reload and other useful functionality.
+
+#+BEGIN_SRC sh
+# make sure you are in frontend/ when running these commands
+expo start
+#+END_SRC
+
+** Code formatting (StandardJS)
+StandardJS is used for code formatting/linting. Run it using the following command.
+
+#+BEGIN_SRC sh
+yarn run standard # runs frontend/node_modules/.bin/standard
+#+END_SRC
+
+** Testing
+Running the test suite is as easy as executing the following command:
+
+#+BEGIN_SRC sh
+yarn test
+#+END_SRC
+
+
+** Building and publishing
+*** Setting up app metadata: app.json
+Modify ~frontend/app.json~ to set metadata such as the privacy, app name, app
+icon, android package, ios details etc.
+
+*** Publishing to Expo Store
+Publishing to the Expo Store is an easy way to make the app easily accessable
+for other users and is as simple as running one command. One can publish to
+multiple channels such that one can have one published version of the app for
+each branch, for example.
+
+First of all you will need an expo account and must login to this account using
+the expo cli. See expo docs [fn:1] for instructions.
+
+#+BEGIN_SRC sh
+expo publish # --release-channel <channel> to set release channel
+#+END_SRC
+
+*** Building for Android (APK)
+Building for Android is trivial using expo's building servers.
+
+#+BEGIN_SRC sh
+expo build:android
+#+END_SRC
+
+This command will build the APK on expo's servers without any need for setting
+up android studio etc. After the build is completed its possible to download the
+.apk file and publish it wherever desired.
+
+*** Building for iOS
+Building for iOS requires more setup because Apple requires that a developer
+account is used. Since we don't have such an account this has not been done, but
+see the expo docs [fn:1] for further information.
+
+#+BEGIN_SRC sh
+expo build:ios
+#+END_SRC
+
+*** (Semi-)Automation of builds
+**** Using Git hooks
+This is the easiest way of semi-automatically building releases. Just add the
+above publish procedure to .git/hooks/<your desired hook> and it will be
+executed when the desired hook is run.
+
+**** Using Gitlab CI/CD
+Another way to do it. Must have a docker image (or alternative) with expo-cli
+installed and login to expo before calling ~expo publich --release-channel
+<branch_name>~. This is prefered, but is not setup currently.
+
+* Releases
+** Expo Store
+Use the latest published expo store version from: [[https://expo.io/@jbele/shopstop][@jbele/shopstop]]
+
+Scan the QR code using the expo app on Android, and the camera
+app on iOS to launch the app on a mobile phone.
+
+** Android
+Get the latest release here: [[https://gitlab.stud.idi.ntnu.no/tdt4140-2020/65/-/raw/build/builds/shopstop_latest.apk][~shopstop_latest.apk~]]
+
+** iOS
+Not available due to lack of an apple developer account. Use the expo store and
+the expo app to run it instead.
+
+** Other releases
+Check the tagged commits for releases including links to specific versions.
+
+
+* Troubleshooting
+** The app doesn't work, I can't login, create user etc..
+The backend server is probably not setup correctly. See Backend README for instructions.
+
+** I don't have expo/yarn etc.
+Google 'how to install expo' and 'how to install yarn respectively.
+
+
+* Footnotes
+[fn:1] Expo documentation is found at https://docs.expo.io/versions/latest/

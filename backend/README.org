@@ -10,6 +10,9 @@
   - [[#entering-the-virtual-environment-using-pipenv][Entering the virtual environment using pipenv]]
   - [[#using-django][Using django]]
     - [[#starting-the-development-server][Starting the development server]]
+    - [[#running-development-server-for-use-within-the-frontend-app][Running development server for use within the frontend app]]
+- [[#deployment][Deployment]]
+  - [[#gitlab-cicd-variables][Gitlab CI/CD variables]]
 - [[#troubleshooting][Troubleshooting]]
   - [[#did-you-make-changes-to-the-database-models-and-you-now-get-inconsistencies-or-errors][Did you make changes to the database models and you now get inconsistencies or errors?]]
 
@@ -49,6 +52,27 @@ models are changed however (~models.py~), see Troubleshooting below.
 python manage.py runserver
 #+END_SRC
 
+*** Running development server for use within the frontend app
+To be able to use the development server from the app one has to bind to an IP
+and port that is accessible by the mobile device that the frontend app will run
+on.
+
+Add the IP to the list of ~ALLOWED_HOSTS~ in ~app/settings.py~, and run the
+server, providing the ip and port.
+
+#+BEGIN_SRC sh
+python manage.py runserver <IP:PORT>
+#+END_SRC
+
+Then, modify the ~BASE_URL~ in the frontend, as described in the configuration
+section of the Frontend README to point to this IP with that port.
+
+
+* Deployment
+** Gitlab CI/CD variables
+The following Gitlab CI/CD variables have to be setup properly:
+- ~SECRET_HEROKU_API_KEY~: the api key for heroku -- used to deploy backend to
+  staging and production.
 
 
 * Troubleshooting
