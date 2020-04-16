@@ -1,51 +1,52 @@
 
 # Table of Contents
 
-1.  [Description](#org533928f)
-2.  [Frontend](#org08b2165)
-    1.  [Requirements](#org2802410)
-    2.  [Development setup](#orge399efc)
-        1.  [Install required JS packages using yarn](#orgcc24ce0)
-        2.  [Configuration (URL of backend server, etc.)](#orga0dfc7a)
-        3.  [Running the frontend development server using expo](#orgaeacd1b)
-        4.  [Code formatting (StandardJS)](#org03fa137)
-        5.  [Testing](#org8d3e343)
-        6.  [Building and publishing](#org6b9ed77)
-    3.  [Releases](#orgc5675ea)
-        1.  [Expo Store](#orgad7da75)
-        2.  [Android](#org3ac5ccd)
-        3.  [iOS](#org9485569)
-        4.  [Other releases](#org960139a)
-    4.  [Troubleshooting](#org878ae75)
-        1.  [The app doesn&rsquo;t work, I can&rsquo;t login, create user etc..](#org3dacb29)
-        2.  [I don&rsquo;t have expo/yarn etc.](#org43b3ca4)
-3.  [Backend](#org31daf29)
-    1.  [Requirements](#org7219035)
-    2.  [Development setup](#org0ceee00)
-        1.  [Setup Python virtual environment using pipenv](#org9c80f28)
-        2.  [Entering the virtual environment using pipenv](#orgda00a7e)
-        3.  [Using django](#orgf381cdd)
-    3.  [Deployment](#org36604dc)
-        1.  [Gitlab CI/CD variables](#orgd93f44e)
-    4.  [Troubleshooting](#org08a2789)
-        1.  [Did you make changes to the database models and you now get inconsistencies or errors?](#org424321e)
+1.  [Description](#org6220648)
+2.  [Frontend](#org43c79a4)
+    1.  [Requirements](#org2d4dc7f)
+    2.  [Development setup](#org493d66b)
+        1.  [Install required JS packages using yarn](#org60d7773)
+        2.  [Configuration (URL of backend server, etc.)](#org09edd52)
+        3.  [Running the frontend development server using expo](#org249a735)
+        4.  [Code formatting (StandardJS)](#org63d6d7a)
+        5.  [Testing](#org9221b81)
+        6.  [Building and publishing](#org381b429)
+    3.  [Releases](#org115fa2e)
+        1.  [Expo Store](#orgb75f772)
+        2.  [Android](#orgc9a4cd2)
+        3.  [iOS](#org81d2618)
+        4.  [Other releases](#orgd3a721b)
+    4.  [Troubleshooting](#org5d16724)
+        1.  [The app doesn&rsquo;t work, I can&rsquo;t login, create user etc..](#orgac6baa5)
+        2.  [I don&rsquo;t have expo/yarn etc.](#orgcd0c66c)
+3.  [Backend](#orgb68a888)
+    1.  [Requirements](#orgf6995b0)
+    2.  [Development setup](#org4f6f481)
+        1.  [Setup Python virtual environment using pipenv](#orgdfeb400)
+        2.  [Entering the virtual environment using pipenv](#orgab15dc8)
+        3.  [Using django](#org0dbda7b)
+    3.  [Deployment](#org37bde64)
+        1.  [Gitlab CI/CD variables](#org03235f6)
+    4.  [Troubleshooting](#org9f0aee8)
+        1.  [Did you make changes to the database models and you now get inconsistencies or errors?](#org0a259cf)
+4.  [LICENSE](#org88e9be0)
 
 
 
-<a id="org533928f"></a>
+<a id="org6220648"></a>
 
 # Description
 
 An Expo app for shopping lists
 
 
-<a id="org08b2165"></a>
+<a id="org43c79a4"></a>
 
 # Frontend
 
 
 
-<a id="org2802410"></a>
+<a id="org2d4dc7f"></a>
 
 ## Requirements
 
@@ -53,12 +54,12 @@ An Expo app for shopping lists
 -   expo (tested on version 3.13.6), see dev. setup
 
 
-<a id="orge399efc"></a>
+<a id="org493d66b"></a>
 
 ## Development setup
 
 
-<a id="orgcc24ce0"></a>
+<a id="org60d7773"></a>
 
 ### Install required JS packages using yarn
 
@@ -69,7 +70,7 @@ used have to be installed. These are installed using the following command:
     yarn install
 
 
-<a id="orga0dfc7a"></a>
+<a id="org09edd52"></a>
 
 ### Configuration (URL of backend server, etc.)
 
@@ -78,7 +79,7 @@ backend server. It will point to the staging backend server by default.
 No other configuration should be needed.
 
 
-<a id="orgaeacd1b"></a>
+<a id="org249a735"></a>
 
 ### Running the frontend development server using expo
 
@@ -90,7 +91,7 @@ application on your mobile phone with live reload and other useful functionality
     expo start
 
 
-<a id="org03fa137"></a>
+<a id="org63d6d7a"></a>
 
 ### Code formatting (StandardJS)
 
@@ -99,7 +100,7 @@ StandardJS is used for code formatting/linting. Run it using the following comma
     yarn run standard # runs frontend/node_modules/.bin/standard
 
 
-<a id="org8d3e343"></a>
+<a id="org9221b81"></a>
 
 ### Testing
 
@@ -108,7 +109,7 @@ Running the test suite is as easy as executing the following command:
     yarn test
 
 
-<a id="org6b9ed77"></a>
+<a id="org381b429"></a>
 
 ### Building and publishing
 
@@ -162,12 +163,12 @@ Running the test suite is as easy as executing the following command:
         <branch_name>`. This is prefered, but is not setup currently.
 
 
-<a id="orgc5675ea"></a>
+<a id="org115fa2e"></a>
 
 ## Releases
 
 
-<a id="orgad7da75"></a>
+<a id="orgb75f772"></a>
 
 ### Expo Store
 
@@ -177,14 +178,14 @@ Scan the QR code using the expo app on Android, and the camera
 app on iOS to launch the app on a mobile phone.
 
 
-<a id="org3ac5ccd"></a>
+<a id="orgc9a4cd2"></a>
 
 ### Android
 
 Get the latest release here: [`shopstop_latest.apk`](https://gitlab.stud.idi.ntnu.no/tdt4140-2020/65/-/raw/build/builds/shopstop_latest.apk)
 
 
-<a id="org9485569"></a>
+<a id="org81d2618"></a>
 
 ### iOS
 
@@ -192,39 +193,39 @@ Not available due to lack of an apple developer account. Use the expo store and
 the expo app to run it instead.
 
 
-<a id="org960139a"></a>
+<a id="orgd3a721b"></a>
 
 ### Other releases
 
 Check the tagged commits for releases including links to specific versions.
 
 
-<a id="org878ae75"></a>
+<a id="org5d16724"></a>
 
 ## Troubleshooting
 
 
-<a id="org3dacb29"></a>
+<a id="orgac6baa5"></a>
 
 ### The app doesn&rsquo;t work, I can&rsquo;t login, create user etc..
 
 The backend server is probably not setup correctly. See Backend README for instructions.
 
 
-<a id="org43b3ca4"></a>
+<a id="orgcd0c66c"></a>
 
 ### I don&rsquo;t have expo/yarn etc.
 
 Google &rsquo;how to install expo&rsquo; and &rsquo;how to install yarn respectively.
 
 
-<a id="org31daf29"></a>
+<a id="orgb68a888"></a>
 
 # Backend
 
 
 
-<a id="org7219035"></a>
+<a id="orgf6995b0"></a>
 
 ## Requirements
 
@@ -233,12 +234,12 @@ Google &rsquo;how to install expo&rsquo; and &rsquo;how to install yarn respecti
 -   Pipenv (installed by running: pip install pipenv)
 
 
-<a id="org0ceee00"></a>
+<a id="org4f6f481"></a>
 
 ## Development setup
 
 
-<a id="org9c80f28"></a>
+<a id="orgdfeb400"></a>
 
 ### Setup Python virtual environment using pipenv
 
@@ -246,7 +247,7 @@ Google &rsquo;how to install expo&rsquo; and &rsquo;how to install yarn respecti
     pipenv install # this will install all the python packages needed for this project
 
 
-<a id="orgda00a7e"></a>
+<a id="orgab15dc8"></a>
 
 ### Entering the virtual environment using pipenv
 
@@ -256,7 +257,7 @@ Google &rsquo;how to install expo&rsquo; and &rsquo;how to install yarn respecti
 All further instructions assume that you are are in a pipenv shell
 
 
-<a id="orgf381cdd"></a>
+<a id="org0dbda7b"></a>
 
 ### Using django
 
@@ -282,12 +283,12 @@ All further instructions assume that you are are in a pipenv shell
     section of the Frontend README to point to this IP with that port.
 
 
-<a id="org36604dc"></a>
+<a id="org37bde64"></a>
 
 ## Deployment
 
 
-<a id="orgd93f44e"></a>
+<a id="org03235f6"></a>
 
 ### Gitlab CI/CD variables
 
@@ -297,12 +298,12 @@ The following Gitlab CI/CD variables have to be setup properly:
     staging and production.
 
 
-<a id="org08a2789"></a>
+<a id="org9f0aee8"></a>
 
 ## Troubleshooting
 
 
-<a id="org424321e"></a>
+<a id="org0a259cf"></a>
 
 ### Did you make changes to the database models and you now get inconsistencies or errors?
 
@@ -316,6 +317,33 @@ and restart the server again.
     # in backend/ and in pipenv shell environment
     python manage.py makemigrations
     python manage.py migrate
+
+
+<a id="org88e9be0"></a>
+
+# LICENSE
+
+MIT License
+
+Copyright (c) 2020 NTNU Software Development Group 65
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &ldquo;AS IS&rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 
 # Footnotes

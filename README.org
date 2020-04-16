@@ -16,3 +16,6 @@ An Expo app for shopping lists
 
 * Backend
 #+INCLUDE: backend/README.org
+
+* LICENSE
+#+INCLUDE: LICENSE
